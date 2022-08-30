@@ -23,7 +23,7 @@ set.seed( 31394)
 
 # Offset and a Back-to-Back SNR
 
-In high performance communications systems, it is common for both the transmitter (Tx) and receiver (Rx) to add noise to the signal. Unless you have a perfect example of one or the other, it is impossible to measure the source: both the Tx and Rx will contribute. This has the effect of having a minimum BER even when no noise is added to the signal, called the Back-to-Back (B2B) BER, and is often expressed in Decibels as the SNR which would the B2B BER in a perfect Rx.
+In high performance communications systems it is common for both the transmitter (Tx) and receiver (Rx) to add noise to the signal. Unless you have a perfect example of one or the other, it is impossible to measure the source: both the Tx and Rx will contribute. This has the effect of having a minimum BER even when no noise is added to the signal, called the Back-to-Back (B2B) BER, and is often expressed in Decibels as the SNR which would the B2B BER in a perfect Rx.
 
 The other common effect is to add an offset to the SNR. That is, the system may always perform as though the SNR were a few Decibels less.
 
