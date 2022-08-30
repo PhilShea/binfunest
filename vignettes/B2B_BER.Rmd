@@ -286,6 +286,21 @@ AIC(mle6,mle7)
 exp( (AIC( mle7) - AIC( mle6)) / 2)
 ```
 
+## Adding Observations
+
+Since we had simulated 21 runs of `r N` trials, we can do one more run of `r 21*N` trials at a high SNR. There were no errors starteing at 14 dB SNR, so we will try this at 15 dB.
+
+```{r}
+N2 <- 21 * N
+Nvec <- c( rep(N, length(s)), N2)
+s2 <- c(s, 15)
+(r4 <- c( r2, rbinom( 1, N2, QPSKdB.B2B( 15, B2, O2))))
+mle8 <- mleB2B(  Errors=r4, N=Nvec, f=QPSKdB.B2B,
+                 fparms=list( x=s2), start=c(b2b=20, offset=0))
+summary( mle8)
+```
+
+
 # Generic Simplified Log Likelihood
 
 While the above function worked, if you don't have substantial samples of the tail, the offset and B2B can get confused. Also, the form requires an infinite estimate for B2B if the system is performing more-or-less theoretically. We need a method that is numerically better behaved in more conditions. We can cast the BER in terms of the $Q$ function: $Q( s) = (1/2)\mathrm{Erfc}(s/\sqrt{2})$ where $\mathrm{Erfc( x)}$ is the complementary error function [^1]. Using this we can create a generic BER function as:
