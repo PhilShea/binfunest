@@ -1,12 +1,10 @@
 ---
 title: "Estimating B2B Q and Offsets"
-output:
-  html_vignette: 
-     keep_md: yes
-  rmarkdown: default
-  github_document: default
-vignette: "%\\VignetteIndexEntry{'Estimating B2B Q and Offsets'} %\\VignetteEngine{knitr::rmarkdown}
-  %\\VignetteEncoding{UTF-8}\n"
+output: rmarkdown::html_vignette
+vignette: >
+   %\VignetteIndexEntry{Estimating B2B Q and Offsets}
+   %\VignetteEngine{knitr::rmarkdown}
+   %\VignetteEncoding{UTF-8}\n
 bibliography: references.bib
 ---
 
