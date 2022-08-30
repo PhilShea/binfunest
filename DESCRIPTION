@@ -1,0 +1,29 @@
+Package: B2BQ
+Type: Package
+Title: Estimates bit error rate performance parameters for communications systems
+Version: 0.1.0
+Author:
+    person(given = "Philip",
+           family = "Shea",
+           role = c("aut", "cre"),
+           email = "philshea@gmail.com",
+           comment = c(ORCID = "YOUR-ORCID-ID"))
+Maintainer: Phil Shea <philshea@gmail.com>
+Description: High performance communications systems typically have inherent noise sources and other perfprmance limitations that need to be estimated.  Measurments made at high signal to noise ratios typicaly result in zero errors due to limitation in available measurement time.  The tools of this package help a user estimate the performance parameters.  Includes theoretical performance functions for popular modulation methods, and utility functions to work with the methods.
+License: MIT + file LICENSE
+Encoding: UTF-8
+LazyData: true
+Suggests: 
+    knitr,
+    rmarkdown,
+    testthat (>= 3.0.0)
+VignetteBuilder: knitr
+RoxygenNote: 7.2.1
+Roxygen: list(markdown = TRUE)
+Config/testthat/edition: 3
+Imports: 
+    pracma,
+    stats,
+    stats4
+URL: https://github.com/PhilShea/B2BQ
+BugReports: https://github.com/PhilShea/B2BQ/issues

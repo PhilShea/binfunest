@@ -1,0 +1,370 @@
+---
+title: "Estimating B2B Q and Offsets"
+output: rmarkdown::html_vignette
+vignette: >
+  %\VignetteIndexEntry{Estimating B2B Q and Offsets}
+  %\VignetteEngine{knitr::rmarkdown}
+  %\VignetteEncoding{UTF-8}
+bibliography: references.bib
+---
+
+```{r, include = FALSE}
+knitr::opts_chunk$set(
+  collapse = TRUE,
+  comment = "#>",
+  fig.dim = c(6, 4)
+)
+```
+
+```{r setup}
+library( B2BQ)
+set.seed( 31394)
+```
+
+# Offset and a Back-to-Back SNR
+
+In high performance communications systems, it is common for both the transmitter (Tx) and receiver (Rx) to add noise to the signal. Unless you have a perfect example of one or the other, it is impossible to measure the source: both the Tx and Rx will contribute. This has the effect of having a minimum BER even when no noise is added to the signal, called the Back-to-Back (B2B) BER, and is often expressed in Decibels as the SNR which would the B2B BER in a perfect Rx.
+
+The other common effect is to add an offset to the SNR. That is, the system may always perform as though the SNR were a few Decibels less.
+
+We can take a BER function in Decibels and add the offset and B2B BER to it as follows. The linear SNR is $\gamma = E_b/N_0$, but in the B2B case the input noise $N$ is zero, yet there is still a finite error rate observed. This is modeled as \$\gamma = E_b/{(N_0+\beta)}\$ where $\beta$ is $1/B2B$.
+
+$$ P_{B2B}(\gamma) = P\left[ Off\left( \frac{1}{1/\gamma + 1/B}\right)\right]$$
+
+where $Off$ is the linear offset (i.e., `undB( offset)`), and $B$ is the linear B2B SNR.
+
+## Creating BER Functions with B2B & Offset
+
+If we have a function $BER( s_{dB})$ of the SNR in Decibels, we can express the B2B and offset in decibels too.
+
+$$
+P_e( s_{dB}, B_{dB}, O_{dB}) = BER( -dB( undB( -s_{dB}) + undB( -B_{dB}) - O_{dB})
+$$
+
+The `B2BQ` package provides a function factory to convert any such function into a function with B2B and Offset in Decibels.
+
+```{r curves, fig.cap="Dotted line shows B2B limiting BER."}
+QPSKdB.B2B <- B2BConvert( QPSKdB)
+O1 <- 3
+B1 <- 16
+s <- 0:20
+plot( s, y=QPSKdB( s), typ="l", log="y", ylim=c( 1e-10, 0.5), 
+      panel.first = grid(), main="QPSK Performance Limits", xlab="SNR in dB",
+      ylab="BER")
+lines( s, y=QPSKdB.B2B( s, Inf, O1), col="blue")
+lines( s, y=QPSKdB.B2B( s, B1, O1), col='red')
+lines( s, y=QPSKdB.B2B( rep( B1, length( s)), Inf, O1), col='black', lty=2)
+legend( "bottomleft", legend=c( "Theory", "Offset", "Offset + B2B", "B2B"),
+        lty=c( 1, 1, 1, 2), col=c( 'black', 'blue', 'red', 'black'))
+```
+
+## Using `nls`
+
+Let's generate some example data and use `nls` to fit the curve to the data.
+
+```{r data, fig.cap="Samples above 17 dB resulted in zero errors (in this example) and so are not plotted."}
+N <- 1000000
+(r <- rbinom( length( s), N, QPSKdB.B2B( s, B1, O1)))
+bplot1 <- function( s, r, N, O, B, ylim=c( 1e-10, 0.5)) {
+  plot( s, y=QPSKdB.B2B( s, B, O), col='red', log='y', type='l', ylim=ylim,
+        main="QPSK Performance Limits", xlab="SNR in dB",
+      ylab="BER", panel.first = grid())
+  points( s, r/N)
+  lines( s, y=QPSKdB( s))
+  lines( s, y=QPSKdB.B2B( s, Inf, O), col="blue")
+  lines( s, y=QPSKdB.B2B( rep( B1, length( s)), Inf, O1), col='black', lty=2)
+  legend( "bottomleft",
+        legend=c( "Data", "Theory", "Offset", "Offset + B2B", "B2B"),
+        lty=c( NA, 1, 1, 1, 2), pch=c( 1, NA, NA, NA, NA),
+        col=c( 'black', 'black', 'blue', 'red', 'black'))
+}
+bplot1( s, r, N, O1, B1)
+```
+
+`nls` creates a non-linear least squares fit to estimate the parameters.
+
+```{r, fig.cap="Non-linear least squares fit (green line) of the line to the data."}
+df1 <- data.frame( Errors=r, Trials=rep( N, length( s)), SNR=s)
+nls.fit1 <- nls( Errors/Trials ~ QPSKdB.B2B( SNR, b, o), data=df1, 
+                 start=list( b=10, o=0))
+summary( nls.fit1)
+bplot1(s, r, N, O1, B1)
+c <- coef( nls.fit1)
+lines( s, y=QPSKdB.B2B( s, c['b'], c['o']), col='green')
+```
+
+Those are remarkably close estimates.  However, we have fit the error rate to the function, not the error counts.  There are zeros in the data, and this doesn't match the function at high SNRs very well.  The following will perform the fit without the zero points.
+
+```{r, fig.cap="Non-linear fit (green line) excluding the zeros."}
+nls.fit2 <- nls( Errors/Trials ~  QPSKdB.B2B( SNR, b, o), 
+                 data=subset( df1, Errors > 0), start=list( b=10, o=0))
+summary( nls.fit2)
+bplot1(s, r, N, O1, B1)
+c <- coef( nls.fit2)
+lines( s, y=QPSKdB.B2B( s, c['b'], c['o']), col='green')
+```
+
+That was unsatifying; the answer is almost identical to the version including hte zeros.  Plotting the data on a linear scale indicates why.
+
+```{r}
+ plot( s, y=QPSKdB.B2B( s, B1, O1), col='red', type='l', panel.first = grid(),
+       main="QPSK Performance Limits", xlab="SNR in dB", ylab="BER")
+  points( s, r/N, panel.first = grid())
+  lines( s, y=QPSKdB( s))
+  lines( s, y=QPSKdB.B2B( s, Inf, O1), col="blue")
+  lines( s, y=QPSKdB.B2B( s, c['b'], c['o']), col='green')
+  legend( "bottomleft",
+        legend=c( "Data", "Theory", "3 dB Offset", "Offset + B2B", "Fit"),
+        lty=c( NA, 1, 1, 1, 1), pch=c( 1, NA, NA, NA, NA),
+        col=c( 'black', 'black', 'blue', 'red', 'green'))
+
+```
+
+The error rate is so close to zero past 10 dB that a least squares error minimization is not affected by any fit errors.  A better technique might be to fit the "Q" function of both sides of the equation.  The Q function is Markum's Q function and is given by 
+
+$$
+Q(s) = \frac{1}{2} \mathrm{Erfc} \left( s / \sqrt{2}\right)
+$$
+
+In R, this is simply `pnorm( x, lower.tail=FALSE)`, although the package provides the function `Q_(x)` for convenience. Since the Q function of zero is infinite, we have to exclude zero results again.
+
+```{r, fig.cap="Results of non-linear fit (green line) to Q function.  Zeros are still filtered out."}
+nls.fit3 <- nls( Q_( Errors/Trials) ~  Q_( QPSKdB.B2B( SNR, b, o)), 
+                 data=subset( df1, Errors > 0), start=list( b=10, o=0))
+summary( nls.fit3)
+bplot1(s, r, N, O1, B1)
+c <- coef( nls.fit3)
+lines( s, y=QPSKdB.B2B( s, c['b'], c['o']), col='green')
+```
+
+# Maximum Likelihood Estimation
+
+In order to use all of the data, and to derive statistical significance from the estimates, we must turn to maximum likelihood estimate.  This will model the parameters which based on the *most likely* parameters based on the observed data (including the zeros).
+
+### Log Likelihood of observations
+
+The likelihood is the probability of that the specific observation  took place.  The `dbinom` function returns exactly this:
+
+```{r}
+dbinom( r, N, QPSKdB.B2B( s, B1, O1), log=TRUE)
+```
+
+It is easy to see that the high-SNR observations (the last ones: the SNR ranges from zero to 20; the samples are numbered one to 21) have the highest likelihood.  This is because when the SNR is high, zero errors is about the only likely event, while at a lower SNR, anything the the range of $N p \pm 2\sqrt{N p}$ is pretty likely (where $N$ is the number of samples, and $p$ is the probability of an error; still assuming $p << 1$ here), so each individual result when $ N p > 0$ has a small likelihood.
+
+## Using `optim`
+
+If we have data consisting of bit errors generated by testing $N$ bits at a variety of SNRs we can use `optim` to find maximum likelihood estimates of the offset and B2B. 
+
+We have to cast the parameters as a vector to work with `optim`. The function `llsb` below creates the log-likelihood of the observations. `optim` will naturally find minimums, so the negative of the sum is used.  Sorting the log likelihood before the sum will ensure that precision isn't lost, although such loss of precision is "unlikely." 
+
+```{r llsb}
+llsb <- function( par) 
+  -sum( sort( dbinom( r, N, QPSKdB.B2B( s, par[1], par[2]), log=TRUE),
+              decreasing=TRUE))
+mle1 <- optim( par=c( b2b=20, off=0), llsb, hessian=TRUE)
+mle1$par
+(mle1s <- sqrt( diag( solve( mle1$hessian))))
+```
+
+Those are pretty close estimates. The diagonal of the inverse of the Hessian matrix is an estimate of the variance of the parameters, so their square root is the standard deviation. The expression below will show how many standard deviations from the answers those estimates are.
+
+```{r}
+c( (mle1$par["b2b"] - B1)/mle1s["b2b"], (mle1$par["off"] - O1)/mle1s["off"])
+```
+
+Below is a simple function that will take a function created by `B2BConvert` and estimate the two parameters. (A few extra parameters are added for possible later use.)
+
+```{r mlef}
+mlef <- function( N, s, r, f, ..., startpar=c( b2b=20, off=0),
+                    method="Nelder-Mead", lower, upper, control) {
+  stopifnot( length( N) == length( s) && length( s) == length( r))
+  ll <- function( par) {
+    -sum( dbinom( r, N, f( s, par[1], par[2], ...), log=TRUE))
+  }
+  res <- optim( startpar, ll, hessian=TRUE)
+}
+
+mle2 <- mlef( rep( N, length( s)), s, r, QPSKdB.B2B)
+mle2$par
+sqrt( diag( solve( mle2$hessian)))
+```
+
+The output is in `$par`, the first being the B2B SNR, and the second being the offset. Note the names come from the `startpar` vector.
+
+Here is a plot with the original data and the estimated line. Note the estimated line lies on top of the the "Offset + 15 dB B2B".
+
+```{r}
+bplot1(s, r, N, O1, B1)
+lines( s, QPSKdB.B2B( s, mle2$par[1], mle2$par[2]), col='green', lty=4)
+legend( "bottomleft",
+        legend=c( "Data", "Theory", "3 dB Offset", "Offset + 15dB B2B",
+                  "Estimated"),
+        lty=c( NA, 1, 1, 1, 4), pch=c( 1, NA, NA, NA, NA),
+        col=c( 'black', 'black', 'blue', 'red', 'green'))
+```
+
+##Using `mle`
+
+The `stats4::mle` function can do a better job, and it does not need the parameters cast into a list.
+
+```{r stats4_mle}
+require( stats4)
+llsb2 <- function( b2b, off) 
+   -sum( dbinom( r, N, QPSKdB.B2B( s, b2b, off), log=TRUE))
+mle3 <- mle( llsb2, start=c( b2b=20, off=0), nobs=length(s))
+summary( mle3)
+```
+
+Using `stats4::mle` provides other functions to work with the result as well:
+
+```{r loglik}
+logLik( mle3)
+vcov( mle3)
+plot(profile( mle3), absVal = FALSE)
+confint( mle3)
+
+```
+
+The same result can be reached with this package's `mleB2B` function, which facilitates the data being hosted in a data frame or list:
+
+```{r mleB2B}
+df <- data.frame( Errors=r, SNR=s)
+(est1 <- mleB2B( data=df, Errors="Errors", N=N, f=QPSKdB.B2B, 
+                 fparms=list( x="SNR"), start=c(b2b=20, offset=0)))
+```
+
+## Very High B2B Q
+
+It is common for many simulated systems or lower data rate systems to reach almost theoretical performance, with an offset, but no, or almost no, detectable B2B. That is, the system can be run back-to-back indefinitely and no errors. In this case, estimating a B2B might corrupt a simple offset estimate. The following has no detectable B2B Q.
+
+```{r vhB2B}
+O2 <- 3
+B2 <- 80
+N <- 1000000
+(r2 <- rbinom( length( s), N, QPSKdB.B2B( s, B2, O2)))
+mle4 <- mleB2B(  Errors=r2, N=N, f=QPSKdB.B2B,
+                 fparms=list( x=s), start=c(b2b=20, offset=0))
+summary(mle4)
+mle4coef <- coef(mle4)
+plot(  s, r2/N, log='y', panel.first = grid(), ylim=c(1e-10, 0.5))
+lines( s, y=QPSKdB( s), col='blue')
+lines( s, y=QPSKdB.B2B( s, B2, O2), col="red")
+lines( s, y=QPSKdB.B2B( s, mle4coef[1],  mle4coef[2]), col="green")
+legend( "bottomleft",
+        legend=c( "Data", "Theory", "3 dB Offset + 80 dB B2B",  
+                  "Estimated"),
+        lty=c( NA, 1, 1, 1), col=c( 'black', 'blue', 'red', 'green'),
+        pch=c( 1, NA, NA, NA))
+```
+
+Typically the B2B parameter will have a very large variance in these instances, and multiple runs will demonstrate this.  In instances like this, the data do not support a B2B parameter, and one should estimate the offset only using the `fixed` option of `mle` or simply setting the B2B parameter.  Note that when optimising over a single variable, a few other changes are required.  
+
+```{r fixed}
+(mle5 <- mleB2B( Errors=r2, N=N, f=QPSKdB.B2B, method="Brent", 
+                 fparms=list( x=s, B2B=+Inf), start=c( offset=0), 
+                 lower=-6, upper=10))
+```
+
+```{r}
+AIC(mle4, mle5)
+```
+
+The lower AIC for `mle4` begs the question that `mle5` is a statistically better estimate.
+
+This is interesting in that the process is detecting the 80 dB B2B even though no errors were detected past 13 dB SNR.  The example below will show the same process with an infinite B2B, showing essentially no difference.
+
+```{r noB2B}
+(r3 <- rbinom( length( s), N, QPSKdB( s - O2)))
+mle6 <- mleB2B( N=N, Errors=r3, f=QPSKdB.B2B, fparms=list( x=s),
+                start=c(b2b=20, offset=0))
+summary(mle6)
+mle7 <- mleB2B( N=N, Errors=r3, f=QPSKdB.B2B, fparms=list( x=s, B2B=+Inf),
+                start=list(offset=0), method="Brent", lower=-6, upper=10)
+summary(mle7)
+mle6coef <- coef(mle6)
+AIC(mle6,mle7)
+exp( (AIC( mle7) - AIC( mle6)) / 2)
+```
+
+# Generic Simplified Log Likelihood
+
+While the above function worked, if you don't have substantial samples of the tail, the offset and B2B can get confused. Also, the form requires an infinite estimate for B2B if the system is performing more-or-less theoretically. We need a method that is numerically better behaved in more conditions. We can cast the BER in terms of the $Q$ function: $Q( s) = (1/2)\mathrm{Erfc}(s/\sqrt{2})$ where $\mathrm{Erfc( x)}$ is the complementary error function [^1]. Using this we can create a generic BER function as:
+
+[^1]: see Abramowitz and Stegun 29.2.29
+
+$$
+BER( \gamma, a, b) = Q\left( \sqrt{ \frac{a \gamma} {1 + b \gamma}} \right)
+$$
+
+where $a$ and $b$ are the linear versions of the offset and B2B and $\gamma$ is the linear SNR. We also note that R does not have the $\mathrm{Erfc}$, however, the following is true: `Erfc( x) = 2 * pnorm( x * sqrt( 2), lower=FALSE)`, and the package includes the function `Q_(x)`. With this formulation, we have the following conversions:
+
+$$
+\begin{aligned}
+Off_{dB} &= -dB( a) \\
+
+B2B_{dB} &= -dB( b) \\
+s_{dB} &= dB( \gamma)
+\end{aligned}
+$$
+work with the `Q_` function. In order to allow the parameters to be negative without getting a negative square root, the parameters are squared in the objective function. Since our data was created with $b = 0$ (i.e., the B2B Q is infinite) we want the gradient search to allow negative $a$ and $b$ without failing.
+
+$$
+BER_2( \gamma, \alpha, \beta) = Q\left( \sqrt{ \frac{\alpha^2 \gamma} {1 + \beta^2 \gamma}} \right)
+$$
+
+The `mleB2B` function will estimate $\alpha$ and $\beta$, but we will want $a = \alpha^2$ and $b = \beta^2$.
+
+```{r Qab}
+Q_ab <- function( s, a, b) Q_( sqrt( a^2 * s/(1 + b^2 * s)))
+mle8 <- mleB2B( N=N, Errors=r2, f=Q_ab, start=c( a=1, b=0), fparms=list(s=undB(s)))
+summary( mle8)
+```
+
+The value of `b` with a comparatively large standard error is an indication that it really ought to be zero.  Note that as its value is equivalent to `r -2*dB( abs(coef(mle8)["b"]))` dB B2BQ, .
+
+```{r plotQab}
+mle8coef <- coef( mle8)
+plot( s, y=r2/N, log='y', type='p', panel.first = grid())
+lines( s, QPSKdB( s))
+lines( s, Q_(sqrt( undB( s)/(1 + undB( -80) * s))), col='red')
+lines( s, y=Q_ab( undB( s), mle8coef[1],  mle8coef[2]), col="green")
+legend( "bottomleft",
+        legend=c( "Data",  "Theory", "0 dB Offset + 80 dB B2B", 
+                  "Estimated"),
+        lty=c( NA, 1, 1, 1), col=c( 'black', 'black', 'red', 'green'),
+        pch=c( 1, NA, NA, NA))
+```
+
+That generated very nice estimates. Note that the standard deviation of $b^2$ is about half of $b^2$, so it is reasonable to let $b = 0$.
+
+Now let's try it with a detectable B2B.
+
+```{r}
+O4 <- 3
+B4 <- 15
+(r4 <- rbinom( length( s), N, QPSKdB.B2B( s, B4, O4)))
+mle9 <- mleB2B( N=N, Errors=r4, f=Q_ab, start=c( a=1, b=0), 
+                fparms=list(s=undB(s)))
+summary( mle9)
+mle9coef <- coef( mle9)
+(mle9sd <- sqrt( diag( vcov( mle9))))
+plot( s, r4/N, log='y',panel.first = grid())
+lines( s, QPSKdB( s))
+lines( s, y=QPSKdB.B2B( s, Inf, O4), col="blue")
+lines( s, y=QPSKdB.B2B( s, B4, O4), col="red")
+lines( s, y=Q_ab( undB( s), mle9coef[1],  mle9coef[2]), col="green", lty=5)
+legend( "bottomleft",
+        legend=c( "Data", "Theory", "Theory + 3 dB", "3 dB Offset + 20 dB B2B",
+                  "Estimated"),
+        lty=c( NA, 1, 1, 1, 5), 
+        col=c( 'black', 'black', 'blue', 'red', 'green'),
+        pch=c( 1, NA, NA, NA, NA))
+```
+
+We can get the coefecients from the following expression:
+
+```{r}
+-2*dB(mle9coef)
+```
+
+
