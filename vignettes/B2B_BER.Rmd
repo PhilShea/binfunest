@@ -1,6 +1,9 @@
 ---
 title: "Estimating B2B Q and Offsets"
-output: rmarkdown::html_vignette
+output: 
+   rmarkdown::html_vignette:
+      fig_caption: yes
+      keep_md: true
 vignette: >
    %\VignetteIndexEntry{Estimating B2B Q and Offsets}
    %\VignetteEngine{knitr::rmarkdown}
@@ -299,7 +302,6 @@ mle8 <- mleB2B(  Errors=r4, N=Nvec, f=QPSKdB.B2B,
                  fparms=list( x=s2), start=c(b2b=20, offset=0))
 summary( mle8)
 ```
-
 
 # Generic Simplified Log Likelihood
 
