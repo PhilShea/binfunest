@@ -305,18 +305,19 @@ legend( "bottomleft",
         pch=c( 1, NA, NA, NA, NA))
 ```
 
-Note that the B2B estimate increased a bit, and the std error decreased a bit.  The example below will show the same process with an infinite B2B, showing essentially no difference.
+Note that the B2B estimate increased a bit, and the std error decreased a bit.  The example below will show the same process with an infinite B2B, showing that when it truly is infinite, the AIC of an infinite model is lower.
 
 ```{r noB2B}
 (r3 <- rbinom( length( s), N, QPSKdB( s - O2)))
 mle7 <- mleB2B( N=N, Errors=r3, f=QPSKdB.B2B, fparms=list( x=s),
                 start=c(b2b=20, offset=0))
-summary(mle6)
-mle7 <- mleB2B( N=N, Errors=r3, f=QPSKdB.B2B, fparms=list( x=s, B2B=+Inf),
-                start=list(offset=0), method="Brent", lower=-6, upper=10)
 summary(mle7)
-mle6coef <- coef(mle6)
-AIC(mle6,mle7)
+mle8 <- mleB2B( N=N, Errors=r3, f=QPSKdB.B2B, fparms=list( x=s, B2B=+Inf),
+                start=list(offset=0), method="Brent", lower=-6, upper=10)
+summary(mle8)
+
+
+AIC(mle7,mle8)
 exp( (AIC( mle7) - AIC( mle6)) / 2)
 ```
 
