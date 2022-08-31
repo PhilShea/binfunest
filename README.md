@@ -3,13 +3,7 @@ README.rmd
 Phil Shea
 2022-08-30
 
-------------------------------------------------------------------------
-
-------------------------------------------------------------------------
-
-<!-- README.md is generated from README.Rmd. Please edit that file -->
-
-# B2BQ
+# `binfunest`
 
 <!-- badges: start -->
 
@@ -27,7 +21,7 @@ You can install the development version of B2BQ from
 
 ``` r
 # install.packages("devtools")
-devtools::install_github("PhilShea/B2BQ")
+devtools::install_github("PhilShea/binfunest")
 ```
 
 ## Example
@@ -50,8 +44,8 @@ B1 <- 16 # B2BQ
 s <- 0:20 # SNR Range 
 N <- 1000000 # Number of samples
 (r <- rbinom( length( s), N, QPSKdB.B2B( s, B1, O1)))
-#>  [1] 161617 134310 108409  84009  62197  43181  28356  17555   9716   5080
-#> [11]   2274    994    376    123     45     16      1      1      0      0
+#>  [1] 161245 134497 108463  83285  61327  43263  28457  17424   9857   4936
+#> [11]   2296    971    426    126     48     16      3      1      0      0
 #> [21]      0
 df <- data.frame( Errors=r, SNR=s, N=N) # place data in data frame
 
@@ -62,14 +56,14 @@ mle1 <- stats4::mle( llsb2, start=c( b2b=20, offset=0), nobs=length(s),
                    method="Nelder-Mead")
 stats4::coef( mle1)
 #>       b2b    offset 
-#> 16.028715  3.007116
+#> 15.922649  2.991044
 # Below is the new function
 est1 <-  mleB2B( data=df, Errors="Errors", N=N, f=QPSKdB.B2B,
                  fparms=list( x="SNR"), start=c(b2b=20, offset=0))
 
 (est1coef <- stats4::coef( est1))
 #>       b2b    offset 
-#> 16.028715  3.007116
+#> 15.922649  2.991044
 ```
 
 The plot below compares the theoretical curve to the curve with B2B and
