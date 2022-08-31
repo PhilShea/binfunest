@@ -1,6 +1,6 @@
 Package: binfunest
 Type: Package
-Title: Estimates parameters of functions driving binomial random variables.
+Title: Estimates parameters of functions driving binomial random variables
 Version: 0.1.0
 Author:
     person(given = "Philip",

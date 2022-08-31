@@ -2,6 +2,7 @@
 
 export(B2BConvert)
 export(DQPSKDDdB)
+export(DQPSKdB)
 export(MPSKdB)
 export(MPSKdB.8)
 export(PSQPSKdB)

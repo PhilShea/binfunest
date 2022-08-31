@@ -1,4 +1,4 @@
 library(testthat)
-library(B2BQ)
+library(binfunest)
 
-test_check("B2BQ")
+test_check("binfunest")

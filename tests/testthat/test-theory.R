@@ -22,6 +22,10 @@ test_that( "QPSKdB works", {
    expect_equal( QPSKdB( 10.0), 3.872108216e-06)
 })
 
+test_that( "DQPSKdB works)", {
+   expect_equal( DQPSKdB( 10), 0.000022699965)
+})
+
 test_that( "DQPSKDDdB works", {
    expect_equal( DQPSKDDdB( 10), 7.744186445e-06)
 })

@@ -8,6 +8,7 @@
 \alias{Q_}
 \alias{Q_Inv}
 \alias{QPSKdB}
+\alias{DQPSKdB}
 \alias{DQPSKDDdB}
 \alias{PSQPSKdB}
 \alias{MPSKdB}
@@ -30,6 +31,8 @@ Q_(x)
 Q_Inv(perr)
 
 QPSKdB(x)
+
+DQPSKdB(x)
 
 DQPSKDDdB(x)
 
@@ -97,12 +100,21 @@ error rate, or bit error probability).
 The rest of the functions return the probability of a bit error given the
 SNR in Decibels.
 \itemize{
-\item \code{DQPSKDDdB} is deferentially detected differential QPSK
-(coherently detected but deferentially decoded DQPSK is simply twice the
-QPSK BER).
+\item \code{QPSKdB} is Quadrature Phase shift keyed: two bits per symbol.
+\item \code{DQPSK} is differentially detected differentially coded QPSK.
+\item \code{DQPSKDDdB} is differentially detected differential QPSK (coherently
+detected but differentially decoded. See \code{DQPSK} above.
 \item \code{PSQPSKdB} is polarization-shifted QPSK: it is dual pole, but only
 one pole is active at any one time, thus supplying three bits per
-symbol.
+symbol. See Karisson & Agreii 2009.
+\item \code{MPSKdB(x, M)} is generic M-ary phase shift keying of \code{M} points in a circle.
+\item \code{MPSKdB.8} simply returns \code{MPSKdB(x, 8)}
+\item \code{QAMdB.8.star} is the optimal star configuration of 8-ary Qauadrature
+Amplitude Modulation (QAM), such that
+the legs are at \eqn{\pm1} and \eqn{\pm(1+\sqrt3)}.
+\item \code{QAMdB(x, M)} is generic rectangular QAM constellation of \code{M} points.
+\item \code{QAMdB.16} Returns the BER for the rectangular QAM constellation according to
+Proakis Eq. 5-2-80.
 \item \code{mod_Inv} will take a function \code{f(x)} and return the x such that
 \code{f(x)==perr}
 but it does this based on the \code{log( f(x))} and the \code{log( perr)}, so

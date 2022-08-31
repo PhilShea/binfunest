@@ -10,12 +10,21 @@
 #'
 #' The rest of the functions return the probability of a bit error given the
 #' SNR in Decibels.
-#' * `DQPSKDDdB` is deferentially detected differential QPSK
-#'      (coherently detected but deferentially decoded DQPSK is simply twice the
-#'      QPSK BER).
-#' * `PSQPSKdB` is polarization-shifted QPSK: it is dual pole, but only
+#' *  `QPSKdB` is Quadrature Phase shift keyed: two bits per symbol.
+#' *  `DQPSK` is differentially detected differentially coded QPSK.
+#' *  `DQPSKDDdB` is differentially detected differential QPSK (coherently
+#'      detected but differentially decoded. See `DQPSK` above.
+#' *  `PSQPSKdB` is polarization-shifted QPSK: it is dual pole, but only
 #'      one pole is active at any one time, thus supplying three bits per
-#'      symbol.
+#'      symbol. See Karisson & Agreii 2009.
+#' *  `MPSKdB(x, M)` is generic M-ary phase shift keying of `M` points in a circle.
+#' *  `MPSKdB.8` simply returns `MPSKdB(x, 8)`
+#' *  `QAMdB.8.star` is the optimal star configuration of 8-ary Qauadrature
+#'      Amplitude Modulation (QAM), such that
+#'      the legs are at \eqn{\pm1} and \eqn{\pm(1+\sqrt3)}.
+#' *  `QAMdB(x, M)` is generic rectangular QAM constellation of `M` points.
+#' *  `QAMdB.16` Returns the BER for the rectangular QAM constellation according to
+#'      Proakis Eq. 5-2-80.
 #' * `mod_Inv` will take a function `f(x)` and return the x such that
 #'      `f(x)==perr`
 #'      but it does this based on the `log( f(x))` and the `log( perr)`, so
@@ -80,6 +89,10 @@ Q_Inv <- function( perr) 2.0 * dB( -stats::qnorm( perr))
 #' @rdname Theoretical
 #' @export
 QPSKdB <- function( x) Q_( sqrt_2 * undB( 0.5 * x))
+
+#' @rdname Theoretical
+#' @export
+DQPSKdB <- function( x) 0.5 * exp( -undB( x))
 
 # Differentially decoded DQPSK.
 #' @rdname Theoretical

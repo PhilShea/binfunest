@@ -20,9 +20,27 @@ knitr::opts_chunk$set(
 ```
 
 ```{r setup}
-library( B2BQ)
+library( binfunest)
 set.seed( 31394)
 ```
+
+# Bit Error Rate Functions
+
+The package include a number of functions that report the theoretical bit error rate (BER) of many common modulation formats, with the signal-to-noise ratio (SNR) specified as the energy in a single bit divided by the noise power in a one Hertz bandwidth ($E_b/N_0$).  See `help("Theoretical") for a complete list.
+
+```{r}
+plot( QPSKdB, 3, 20, log="y", ylim=c( 1e-10, 0.5), panel.first = grid(),
+      main="Modulation Performance Curves", xlab="SNR in dB",
+      ylab="BER")
+curve( QAMdB.8.star, 3, 20, col="blue", add=TRUE)
+curve( PSQPSKdB, 3, 20, col="red", add=TRUE)
+curve( QAMdB.16, 3, 20, col="green", add=TRUE)
+legend( "bottomleft", legend=c( "QPSKdB", "QAMdB.8.star", "PSQPSKdB",
+                                "QAMdB.16"),
+        lty=c( 1, 1, 1, 1),
+        col=c("black", "blue", "red", "green"))
+```
+
 
 # Offset and a Back-to-Back SNR
 
