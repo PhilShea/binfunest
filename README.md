@@ -1,7 +1,7 @@
 README.rmd
 ================
 Phil Shea
-2022-08-30
+2022-08-31
 
 # `binfunest`
 
@@ -11,8 +11,10 @@ Phil Shea
 <!-- badges: end -->
 
 The goal of B2BQ is to simplify the estimation of offsets and
-Back-to-Back “Q” for communications systems. Also eases maximum
-likelihood estimation of any function generating binomial probabilities.
+Back-to-Back “Q” for communications systems. The package also provides
+theoretical performance equations for many common modulation schemes,
+and eases maximum likelihood estimation of any function generating
+binomial probabilities.
 
 ## Installation
 
@@ -27,7 +29,7 @@ devtools::install_github("PhilShea/binfunest")
 ## Example
 
 This is a basic example which shows you how to solve a common problem of
-estimating the <B@B> Q and offset. First we create a function which will
+estimating the B2B Q and offset. First we create a function which will
 add offset and B2B parameters to a standard communications modulation
 (Quadrature Phase Shift Keying, or QPSK). The package provides
 theoretical performance curves for many common modulations. Then
@@ -44,8 +46,8 @@ B1 <- 16 # B2BQ
 s <- 0:20 # SNR Range 
 N <- 1000000 # Number of samples
 (r <- rbinom( length( s), N, QPSKdB.B2B( s, B1, O1)))
-#>  [1] 161245 134497 108463  83285  61327  43263  28457  17424   9857   4936
-#> [11]   2296    971    426    126     48     16      3      1      0      0
+#>  [1] 161310 134582 108329  83561  62110  43110  28483  17401   9794   4943
+#> [11]   2278    985    366    129     34     20      8      0      0      0
 #> [21]      0
 df <- data.frame( Errors=r, SNR=s, N=N) # place data in data frame
 
@@ -56,14 +58,14 @@ mle1 <- stats4::mle( llsb2, start=c( b2b=20, offset=0), nobs=length(s),
                    method="Nelder-Mead")
 stats4::coef( mle1)
 #>       b2b    offset 
-#> 15.922649  2.991044
+#> 16.030781  3.002858
 # Below is the new function
 est1 <-  mleB2B( data=df, Errors="Errors", N=N, f=QPSKdB.B2B,
                  fparms=list( x="SNR"), start=c(b2b=20, offset=0))
 
 (est1coef <- stats4::coef( est1))
 #>       b2b    offset 
-#> 15.922649  2.991044
+#> 16.030781  3.002858
 ```
 
 The plot below compares the theoretical curve to the curve with B2B and
@@ -71,7 +73,7 @@ offset, and the estimated curve.
 
 ``` r
 plot( s, y=r/N, log='y', type='p', panel.first = grid())
-#> Warning in xy.coords(x, y, xlabel, ylabel, log): 3 y values <= 0 omitted from
+#> Warning in xy.coords(x, y, xlabel, ylabel, log): 4 y values <= 0 omitted from
 #> logarithmic plot
 lines( s, QPSKdB( s))
 lines( s, QPSKdB.B2B( s, B1, O1), col='red')
