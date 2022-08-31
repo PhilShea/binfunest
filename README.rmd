@@ -24,7 +24,7 @@ knitr::opts_chunk$set(
 [![R-CMD-check](https://github.com/PhilShea/binfunest/actions/workflows/R-CMD-check.yaml/badge.svg)](https://github.com/PhilShea/binfunest/actions/workflows/R-CMD-check.yaml)
 <!-- badges: end -->
 
-The goal of B2BQ is to simplify the estimation of offsets and Back-to-Back "Q" for communications systems.  Also eases maximum likelihood estimation of any function generating binomial probabilities.
+The goal of B2BQ is to simplify the estimation of offsets and Back-to-Back "Q" for communications systems.  The package also provides theoretical performance equations for many common modulation schemes, and eases maximum likelihood estimation of any function generating binomial probabilities.
 
 ## Installation
 
@@ -37,7 +37,7 @@ devtools::install_github("PhilShea/binfunest")
 
 ## Example
 
-This is a basic example which shows you how to solve a common problem of estimating the B@B Q and offset.  First we create a function which will add offset and B2B parameters to a standard communications modulation (Quadrature Phase Shift Keying, or QPSK).  The package provides theoretical performance curves for many common modulations.  Then `rbinom` is called to simulate measurements made at a range of signal to noise ratios (SNR).  All SNRs, offsets, and B2BQs are in Decibels.  Note that the generated samples include zeros, and that the first of these is usefule in the estimate.
+This is a basic example which shows you how to solve a common problem of estimating the B2B Q and offset.  First we create a function which will add offset and B2B parameters to a standard communications modulation (Quadrature Phase Shift Keying, or QPSK).  The package provides theoretical performance curves for many common modulations.  Then `rbinom` is called to simulate measurements made at a range of signal to noise ratios (SNR).  All SNRs, offsets, and B2BQs are in Decibels.  Note that the generated samples include zeros, and that the first of these is usefule in the estimate.
 
 ```{r example}
 library(B2BQ, stats4)
