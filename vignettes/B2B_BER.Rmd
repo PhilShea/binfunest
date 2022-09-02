@@ -422,4 +422,34 @@ We can get the coefecients from the following expression:
 -2*dB(mle9coef)
 ```
 
+# Real Data
+
+We have some simulations of variaous constellations and thier bit maps in perfect detections (i.e., the constellation points were generated, noise was added, and then the points were detected; there was no actual modulation/demodulation).  The `BERDF` data included with the package has a count of symbols and bits per symbol, so we need to make this data vector.
+
+```{r}
+Q8Sbits <- BERDF[BERDF$Name=="8QAM Star",]
+Q8Sbits$Nbits <- Q8Sbits$Bps * Q8Sbits$N
+QAMdB.8.star.B2B <- B2BConvert( QAMdB.8.star)
+mle10 <- mleB2B( data=Q8Sbits, N="Nbits", Errors="BER", 
+                 f=QAMdB.8.star.B2B , start=c( B2B=30, offset=0), 
+                 fparms=list( x="SNR"))
+summary( mle10)
+```
+
+This looks like the B2B may be infinite, so it is appropriate to try such a fit.
+
+```{r}
+mle11 <- mleB2B( data=Q8Sbits, N="Nbits", Errors="BER", 
+                 f=QAMdB.8.star.B2B , method="Brent", 
+                 fparms=list( x="SNR", B2B=+Inf), start=c( offset=0), 
+                 lower=-6, upper=10)
+summary( mle11)
+AIC( mle10, mle11)
+```
+
+That result indicates that the B2B is actually needed.
+
+```{r}
+Q8Sbits
+```
 
