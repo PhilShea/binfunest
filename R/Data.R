@@ -1,6 +1,7 @@
-#' An example `BERDF` dataframe created by [simsigs()].
+#' An example `BERDF` dataframe created by `simsigs()`, a function in a
+#' forthcoming package `coherent`.
 #'
-#' `BERDF` is a standard `R` data frame created by the [simsigs()] function in
+#' `BERDF` is a standard `R` data frame created by the `simsigs()` function in
 #' the forthcoming `coherent` package.  The observations have been `condense`d
 #'
 #' @format A dataframe with the following fields:

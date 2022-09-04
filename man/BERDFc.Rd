@@ -3,7 +3,8 @@
 \docType{data}
 \name{BERDFc}
 \alias{BERDFc}
-\title{An example \code{BERDF} dataframe created by \code{\link[=simsigs]{simsigs()}}.}
+\title{An example \code{BERDF} dataframe created by \code{simsigs()}, a function in a
+forthcoming package \code{coherent}.}
 \format{
 A dataframe with the following fields:
 \describe{
@@ -22,7 +23,7 @@ the noise is randomly generated, this is a stochastic item.}
 BERDFc
 }
 \description{
-\code{BERDF} is a standard \code{R} data frame created by the \code{\link[=simsigs]{simsigs()}} function in
+\code{BERDF} is a standard \code{R} data frame created by the \code{simsigs()} function in
 the forthcoming \code{coherent} package.  The observations have been \code{condense}d
 }
 \keyword{datasets}

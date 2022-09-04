@@ -424,19 +424,19 @@ We can get the coefecients from the following expression:
 
 # Real Data
 
-We have some simulations of variaous constellations and thier bit maps in perfect detections (i.e., the constellation points were generated, noise was added, and then the points were detected; there was no actual modulation/demodulation).  The `BERDF` data included with the package has a count of symbols and bits per symbol, so we need to make this data vector.
+We have some simulations of variaous constellations and thier bit maps in perfect detections (i.e., the constellation points were generated, noise was added, and then the points were detected; there was no actual modulation/demodulation).  The `BERDFc` data included with the package has a count of symbols and bits per symbol, so we need to make this data vector.
 
 ```{r}
-Q8Sbits <- BERDF[BERDF$Name=="8QAM Star",]
-Q8Sbits$Nbits <- Q8Sbits$Bps * Q8Sbits$N
-QAMdB.8.star.B2B <- B2BConvert( QAMdB.8.star)
+Q8Sbits <- BERDFc[BERDFc$Name=="8QAM Star",] # Select one constellation
+Q8Sbits$Nbits <- Q8Sbits$Bps * Q8Sbits$N # Add  a Nbits column
+QAMdB.8.star.B2B <- B2BConvert( QAMdB.8.star) 
 mle10 <- mleB2B( data=Q8Sbits, N="Nbits", Errors="BER", 
                  f=QAMdB.8.star.B2B , start=c( B2B=30, offset=0), 
                  fparms=list( x="SNR"))
 summary( mle10)
 ```
 
-This looks like the B2B may be infinite, so it is appropriate to try such a fit.
+This looks like the B2B may be finite, and this can be verified by such a fit.
 
 ```{r}
 mle11 <- mleB2B( data=Q8Sbits, N="Nbits", Errors="BER", 
@@ -447,9 +447,10 @@ summary( mle11)
 AIC( mle10, mle11)
 ```
 
-That result indicates that the B2B is actually needed.
+That result indicates that the B2B is actually needed.  We can see what is hapenning here by looking at the data.  
 
 ```{r}
 Q8Sbits
 ```
 
+The 14 dB SNR observation has onely one symbol error, but reports two bit errors.  This is because the 8QAM Star constellation has a few adjacent symbols that have two bit changes, and that one error doubles the estmiated error rate.  Therefore, this estimator indicates that the BER is not binomial distributed.
