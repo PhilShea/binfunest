@@ -10,11 +10,12 @@ Author:
            comment = c(ORCID = "0000-0001-5460-9987"))
 Maintainer: Phil Shea <philshea@gmail.com>
 Description: High performance communications systems typically have inherent noise sources and 
-other perfprmance limitations that need to be estimated.  Measurments made at high signal to 
-noise ratios typicaly result in zero errors due to limitation in available measurement time.  
-The tools of this package help a user estimate the performance parameters that drive a binomial 
-distribution of the observed error.  Includes theoretical performance functions for popular 
-modulation methods, and utility functions to work with the methods.
+    other perfprmance limitations that need to be estimated.  Measurments made at high signal to 
+    noise ratios typicaly result in zero errors due to limitation in available measurement time.  
+    The tools of this package help a user make maximum likelihood estimates of the performance 
+    parameters that drive a binomial distribution of the observed error, and take full advantage 
+    of.  Includes theoretical performance functions for popular modulation methods, and utility 
+    functions to work with the methods.
 License: MIT + file LICENSE
 Encoding: UTF-8
 LazyData: true
