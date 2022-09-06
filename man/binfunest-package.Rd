@@ -7,7 +7,7 @@
 \title{Package \code{B2BQ} will estimate an offset and B2B "Q" of a communications
 system performance.}
 \description{
-High performance communications systems typically have inherent noise sources and other perfprmance limitations that need to be estimated. Measurments made at high signal to noise ratios typicaly result in zero errors due to limitation in available measurement time. The tools of this package help a user make maximum likelihood estimates of the performance parameters that drive a binomial distribution of the observed error, and take full advantage of. Includes theoretical performance functions for popular modulation methods, and utility functions to work with the methods.
+binfunest helps a user make maximum likelihood estimates of the performance parameters that drive a binomial distribution of the observed errors, and takes full advantage zero error observations. High performance communications systems typically have inherent noise sources and other performance limitations that need to be estimated. Measurements made at high signal to noise ratios typically result in zero errors due to limitation in available measurement time. binfunest Includes theoretical performance functions for common modulation schemes, and utility functions to work with the performance functions.
 }
 \seealso{
 Useful links:
@@ -15,6 +15,10 @@ Useful links:
   \item \url{https://github.com/PhilShea/binfunest}
   \item Report bugs at \url{https://github.com/PhilShea/binfunest/issues}
 }
+
+}
+\author{
+\strong{Maintainer}: Philip Shea \email{philshea@gmail.com} (\href{https://orcid.org/0000-0001-5460-9987}{ORCID})
 
 }
 \keyword{internal}

@@ -9,7 +9,7 @@ Authors@R:
            email = "philshea@gmail.com",
            comment = c(ORCID = "0000-0001-5460-9987"))
 Author: Phil Shea [aut, cre]
-Maintainer: Phil Shea <philshea at gmail.com>
+Maintainer: Phil Shea <philshea@gmail.com>
 Description: binfunest helps a user make maximum likelihood estimates of the 
     performance parameters that drive a binomial distribution of the observed 
     errors, and takes full advantage zero error observations. 
