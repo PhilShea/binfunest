@@ -8,10 +8,10 @@ Authors@R:
            role = c("aut", "cre"),
            email = "philshea@gmail.com",
            comment = c(ORCID = "0000-0001-5460-9987"))
-Author: Phil Shea [aut, cre]
-Maintainer: Phil Shea <philshea@gmail.com>
-Description: binfunest helps a user make maximum likelihood estimates of the 
-    performance parameters that drive a binomial distribution of the observed 
+Author: Philip Shea [aut, cre]
+Maintainer: Philip Shea <philshea@gmail.com>
+Description: Provides maximum likelihood estimates of the 
+    performance parameters that drive a binomial distribution of observed 
     errors, and takes full advantage zero error observations. 
     High performance communications systems typically have inherent 
     noise sources and other performance limitations that need to be estimated.  
