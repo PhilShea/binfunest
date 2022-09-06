@@ -8,16 +8,17 @@ Authors@R:
            role = c("aut", "cre"),
            email = "philshea@gmail.com",
            comment = c(ORCID = "0000-0001-5460-9987"))
-Maintainer: Phil Shea <philshe at @gmail.com>
-Description: High performance communications systems typically have inherent 
+Author: Phil Shea [aut, cre]
+Maintainer: Phil Shea <philshea at gmail.com>
+Description: binfunest helps a user make maximum likelihood estimates of the 
+    performance parameters that drive a binomial distribution of the observed 
+    errors, and takes full advantage zero error observations. 
+    High performance communications systems typically have inherent 
     noise sources and other performance limitations that need to be estimated.  
     Measurements made at high signal to noise ratios typically result in zero 
-    errors due to limitation in available measurement time. The tools of this 
-    package help a user make maximum likelihood estimates of the performance 
-    parameters that drive a binomial distribution of the observed error, and 
-    take full advantage zero error observations.  Includes theoretical 
-    performance functions for common modulation methods, and utility functions 
-    to work with the performance functions.
+    errors due to limitation in available measurement time.  binfunest Includes 
+    theoretical performance functions for common modulation schemes, and utility 
+    functions to work with the performance functions.
 License: MIT + file LICENSE
 Encoding: UTF-8
 LazyData: true
