@@ -1,25 +1,28 @@
 Package: binfunest
 Type: Package
-Title: Estimates parameters of functions driving binomial random variables
-Version: 0.1.0
-Author:
+Title: Estimates Parameters of Functions Driving Binomial Random Variables
+Version: 0.1.0.9000
+Authors@R:
     person(given = "Philip",
            family = "Shea",
            role = c("aut", "cre"),
            email = "philshea@gmail.com",
            comment = c(ORCID = "0000-0001-5460-9987"))
-Maintainer: Phil Shea <philshea@gmail.com>
-Description: High performance communications systems typically have inherent noise sources and 
-    other perfprmance limitations that need to be estimated.  Measurments made at high signal to 
-    noise ratios typicaly result in zero errors due to limitation in available measurement time.  
-    The tools of this package help a user make maximum likelihood estimates of the performance 
-    parameters that drive a binomial distribution of the observed error, and take full advantage 
-    of.  Includes theoretical performance functions for popular modulation methods, and utility 
-    functions to work with the methods.
+Maintainer: Phil Shea <philshe at @gmail.com>
+Description: High performance communications systems typically have inherent 
+    noise sources and other performance limitations that need to be estimated.  
+    Measurements made at high signal to noise ratios typically result in zero 
+    errors due to limitation in available measurement time. The tools of this 
+    package help a user make maximum likelihood estimates of the performance 
+    parameters that drive a binomial distribution of the observed error, and 
+    take full advantage zero error observations.  Includes theoretical 
+    performance functions for common modulation methods, and utility functions 
+    to work with the performance functions.
 License: MIT + file LICENSE
 Encoding: UTF-8
 LazyData: true
 Suggests: 
+    covr,
     knitr,
     rmarkdown,
     testthat (>= 3.0.0)

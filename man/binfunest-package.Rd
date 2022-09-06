@@ -7,7 +7,7 @@
 \title{Package \code{B2BQ} will estimate an offset and B2B "Q" of a communications
 system performance.}
 \description{
-High performance communications systems typically have inherent noise sources and other perfprmance limitations that need to be estimated. Measurments made at high signal to noise ratios typicaly result in zero errors due to limitation in available measurement time. The tools of this package help a user estimate the performance parameters. Includes theoretical performance functions for popular modulation methods, and utility functions to work with the methods.
+High performance communications systems typically have inherent noise sources and other perfprmance limitations that need to be estimated. Measurments made at high signal to noise ratios typicaly result in zero errors due to limitation in available measurement time. The tools of this package help a user make maximum likelihood estimates of the performance parameters that drive a binomial distribution of the observed error, and take full advantage of. Includes theoretical performance functions for popular modulation methods, and utility functions to work with the methods.
 }
 \seealso{
 Useful links:

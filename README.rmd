@@ -22,6 +22,7 @@ knitr::opts_chunk$set(
 
 <!-- badges: start -->
 [![R-CMD-check](https://github.com/PhilShea/binfunest/actions/workflows/R-CMD-check.yaml/badge.svg)](https://github.com/PhilShea/binfunest/actions/workflows/R-CMD-check.yaml)
+[![Codecov test coverage](https://codecov.io/gh/PhilShea/binfunest/branch/main/graph/badge.svg)](https://app.codecov.io/gh/PhilShea/binfunest?branch=main)
 <!-- badges: end -->
 
 The goal of B2BQ is to simplify the estimation of offsets and Back-to-Back "Q" for communications systems.  The package also provides theoretical performance equations for many common modulation schemes, and eases maximum likelihood estimation of any function generating binomial probabilities.

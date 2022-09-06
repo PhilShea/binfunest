@@ -1,13 +1,15 @@
 README.rmd
 ================
 Phil Shea
-2022-08-31
+2022-09-06
 
 # `binfunest`
 
 <!-- badges: start -->
 
 [![R-CMD-check](https://github.com/PhilShea/binfunest/actions/workflows/R-CMD-check.yaml/badge.svg)](https://github.com/PhilShea/binfunest/actions/workflows/R-CMD-check.yaml)
+[![Codecov test
+coverage](https://codecov.io/gh/PhilShea/binfunest/branch/main/graph/badge.svg)](https://app.codecov.io/gh/PhilShea/binfunest?branch=main)
 <!-- badges: end -->
 
 The goal of B2BQ is to simplify the estimation of offsets and
@@ -46,8 +48,8 @@ B1 <- 16 # B2BQ
 s <- 0:20 # SNR Range 
 N <- 1000000 # Number of samples
 (r <- rbinom( length( s), N, QPSKdB.B2B( s, B1, O1)))
-#>  [1] 161310 134582 108329  83561  62110  43110  28483  17401   9794   4943
-#> [11]   2278    985    366    129     34     20      8      0      0      0
+#>  [1] 162270 134744 108042  83824  61614  43320  28496  17173   9682   4957
+#> [11]   2323   1030    348    130     44     15      3      1      0      0
 #> [21]      0
 df <- data.frame( Errors=r, SNR=s, N=N) # place data in data frame
 
@@ -58,14 +60,14 @@ mle1 <- stats4::mle( llsb2, start=c( b2b=20, offset=0), nobs=length(s),
                    method="Nelder-Mead")
 stats4::coef( mle1)
 #>       b2b    offset 
-#> 16.030781  3.002858
+#> 16.062584  3.005711
 # Below is the new function
 est1 <-  mleB2B( data=df, Errors="Errors", N=N, f=QPSKdB.B2B,
                  fparms=list( x="SNR"), start=c(b2b=20, offset=0))
 
 (est1coef <- stats4::coef( est1))
 #>       b2b    offset 
-#> 16.030781  3.002858
+#> 16.062584  3.005711
 ```
 
 The plot below compares the theoretical curve to the curve with B2B and
@@ -73,7 +75,7 @@ offset, and the estimated curve.
 
 ``` r
 plot( s, y=r/N, log='y', type='p', panel.first = grid())
-#> Warning in xy.coords(x, y, xlabel, ylabel, log): 4 y values <= 0 omitted from
+#> Warning in xy.coords(x, y, xlabel, ylabel, log): 3 y values <= 0 omitted from
 #> logarithmic plot
 lines( s, QPSKdB( s))
 lines( s, QPSKdB.B2B( s, B1, O1), col='red')

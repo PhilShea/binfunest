@@ -3,3 +3,5 @@
 ^\.github$
 ^README\.Rmd$
 ^README\.md$
+^cran-comments\.md$
+^codecov\.yml$
