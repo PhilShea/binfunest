@@ -16,7 +16,7 @@ Description: Provides maximum likelihood estimates of the
     High performance communications systems typically have inherent 
     noise sources and other performance limitations that need to be estimated.  
     Measurements made at high signal to noise ratios typically result in zero 
-    errors due to limitation in available measurement time.  binfunest Includes 
+    errors due to limitation in available measurement time.  Package includes 
     theoretical performance functions for common modulation schemes, and utility 
     functions to work with the performance functions.
 License: MIT + file LICENSE
