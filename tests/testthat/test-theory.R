@@ -48,7 +48,7 @@ test_that( "MPSKdB throws error if M four or less", {
 })
 
 test_that( "MPSKdB.8 works",{
-   expect_equal( MPSKdB( 10, 8), 0.0010113953207)
+   expect_equal( MPSKdB.8( 10), MPSKdB( 10, 8))
 })
 
 test_that( "QAMdB.8.star works", {
