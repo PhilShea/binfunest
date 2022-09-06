@@ -8,7 +8,6 @@ Authors@R:
            role = c("aut", "cre"),
            email = "philshea@gmail.com",
            comment = c(ORCID = "0000-0001-5460-9987"))
-Author: Philip Shea [aut, cre]
 Maintainer: Philip Shea <philshea@gmail.com>
 Description: Provides maximum likelihood estimates of the 
     performance parameters that drive a binomial distribution of observed 
