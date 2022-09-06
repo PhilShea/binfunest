@@ -19,7 +19,7 @@
 #'      symbol. See Karisson & Agreii 2009.
 #' *  `MPSKdB(x, M)` is generic M-ary phase shift keying of `M` points in a circle.
 #' *  `MPSKdB.8` simply returns `MPSKdB(x, 8)`
-#' *  `QAMdB.8.star` is the optimal star configuration of 8-ary Qauadrature
+#' *  `QAMdB.8.star` is the optimal star configuration of 8-ary Quadrature
 #'      Amplitude Modulation (QAM), such that
 #'      the legs are at \eqn{\pm1} and \eqn{\pm(1+\sqrt3)}.
 #' *  `QAMdB(x, M)` is generic rectangular QAM constellation of `M` points.

@@ -126,7 +126,7 @@ c <- coef( nls.fit2)
 lines( s, y=QPSKdB.B2B( s, c['b'], c['o']), col='green')
 ```
 
-That was unsatifying; the answer is almost identical to the version including the zeros.  Plotting the data on a linear scale indicates why.
+That was unsatisfying; the answer is almost identical to the version including the zeros.  Plotting the data on a linear scale indicates why.
 
 ```{r, fig.cap="Linear plot of performance showing how close to zero the estimates lie."}
  plot( s, y=QPSKdB.B2B( s, B1, O1), col='red', type='l', panel.first = grid(),
@@ -283,7 +283,7 @@ legend( "bottomleft",
         pch=c( 1, NA, NA, NA, NA))
 ```
 
-So the plot shows the data running down the Offset line, but it is quite unconvincing that the B2B estimate is correct. Typically the B2B parameter will have a very large variance in these instances (this does not), and multiple runs will demonstrate this.  Ignoring our guilty knowledge of how the data was genereated, we might want to test the hypothesis that the B2B Q is really infinite (this is not an imposibility).  WE can estimate the offset only using the `fixed` option of `mle` or simply setting the B2B parameter.  Note that when optimizing over a single variable, a few other changes are required.  
+So the plot shows the data running down the Offset line, but it is quite unconvincing that the B2B estimate is correct. Typically the B2B parameter will have a very large variance in these instances (this does not), and multiple runs will demonstrate this.  Ignoring our guilty knowledge of how the data was generated, we might want to test the hypothesis that the B2B Q is really infinite (this is not an impossibility).  WE can estimate the offset only using the `fixed` option of `mle` or simply setting the B2B parameter.  Note that when optimizing over a single variable, a few other changes are required.  
 
 ```{r mle5}
 (mle5 <- mleB2B( Errors=r2, N=N, f=QPSKdB.B2B, method="Brent", 
@@ -416,7 +416,7 @@ legend( "bottomleft",
         pch=c( 1, NA, NA, NA, NA))
 ```
 
-We can get the coefecients from the following expression:
+We can get the coefficients from the following expression:
 
 ```{r}
 -2*dB(mle9coef)
@@ -424,7 +424,7 @@ We can get the coefecients from the following expression:
 
 # Real Data
 
-We have some simulations of variaous constellations and thier bit maps in perfect detections (i.e., the constellation points were generated, noise was added, and then the points were detected; there was no actual modulation/demodulation).  The `BERDFc` data included with the package has a count of symbols and bits per symbol, so we need to make this data vector.
+We have some simulations of various constellations and their bit maps used with perfect detectors (i.e., the constellation points were generated, noise was added, and then the points were detected; there was no actual modulation/demodulation).  The `BERDFc` data included with the package has a count of symbols and bits per symbol, so we need to make this data vector.
 
 ```{r}
 Q8Sbits <- BERDFc[BERDFc$Name=="8QAM Star",] # Select one constellation
@@ -447,10 +447,10 @@ summary( mle11)
 AIC( mle10, mle11)
 ```
 
-That result indicates that the B2B is actually needed.  We can see what is hapenning here by looking at the data.  
+That result indicates that the B2B is actually needed.  We can see what is happening here by looking at the data.  
 
 ```{r}
 Q8Sbits
 ```
 
-The 14 dB SNR observation has onely one symbol error, but reports two bit errors.  This is because the 8QAM Star constellation has a few adjacent symbols that have two bit changes, and that one error doubles the estmiated error rate.  Therefore, this estimator indicates that the BER is not binomial distributed.
+The 14 dB SNR observation has only one symbol error, but reports two bit errors.  This is because the 8QAM Star constellation has a few adjacent symbols that have two bit changes, and that one error doubles the estimated error rate.  Therefore, this estimator indicates that the BER is not binomial distributed.

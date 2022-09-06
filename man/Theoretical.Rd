@@ -109,7 +109,7 @@ one pole is active at any one time, thus supplying three bits per
 symbol. See Karisson & Agreii 2009.
 \item \code{MPSKdB(x, M)} is generic M-ary phase shift keying of \code{M} points in a circle.
 \item \code{MPSKdB.8} simply returns \code{MPSKdB(x, 8)}
-\item \code{QAMdB.8.star} is the optimal star configuration of 8-ary Qauadrature
+\item \code{QAMdB.8.star} is the optimal star configuration of 8-ary Quadrature
 Amplitude Modulation (QAM), such that
 the legs are at \eqn{\pm1} and \eqn{\pm(1+\sqrt3)}.
 \item \code{QAMdB(x, M)} is generic rectangular QAM constellation of \code{M} points.
