@@ -106,7 +106,7 @@ SNR in Decibels.
 detected but differentially decoded. See \code{DQPSK} above.
 \item \code{PSQPSKdB} is polarization-shifted QPSK: it is dual pole, but only
 one pole is active at any one time, thus supplying three bits per
-symbol. (See Aggrell & Karlson (2009, DOI:10.1109/JLT.2009.2029064)).
+symbol. (See Agrell & Karlsson (2009, DOI:10.1109/JLT.2009.2029064)).
 \item \code{MPSKdB(x, M)} is generic M-ary phase shift keying of \code{M} points in a circle.
 \item \code{MPSKdB.8} simply returns \code{MPSKdB(x, 8)}
 \item \code{QAMdB.8.star} is the optimal star configuration of 8-ary Quadrature
