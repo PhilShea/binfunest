@@ -16,7 +16,7 @@
 #'      detected but differentially decoded. See `DQPSK` above.
 #' *  `PSQPSKdB` is polarization-shifted QPSK: it is dual pole, but only
 #'      one pole is active at any one time, thus supplying three bits per
-#'      symbol. See Karisson & Agreii 2009.
+#'      symbol. (See Aggrell & Karlson (2009, DOI:10.1109/JLT.2009.2029064)).
 #' *  `MPSKdB(x, M)` is generic M-ary phase shift keying of `M` points in a circle.
 #' *  `MPSKdB.8` simply returns `MPSKdB(x, 8)`
 #' *  `QAMdB.8.star` is the optimal star configuration of 8-ary Quadrature
@@ -99,7 +99,8 @@ DQPSKdB <- function( x) 0.5 * exp( -undB( x))
 #' @export
 DQPSKDDdB <- function( x) {p <- QPSKdB( x); 2.0 * p * (1.0 - p)}
 
-# Polarization shifted QPSK. Karisson & Agreii 2009. . .
+# Polarization shifted QPSK. Aggrell & Karlson
+# (2009, DOI:10.1109/JLT.2009.2029064)
 #' @rdname Theoretical
 #' @export
 PSQPSKdB <- function( x) {
@@ -154,15 +155,15 @@ QAMdB.16 <- function( x) (1.0 - (1.0 - 1.5 * Q_( sqrt( 0.8 * undB( x))))^2) / 4
 mod_Inv <- function( f, perr, guess=Q_Inv( perr))
    if (perr>0)  {pracma::fzero( function( X) log( f( X)) - log( perr), guess)
    } else list( x=Inf, fval=0)
-# mod_Inv( QPSKdB, QPSKdB( 7), 7.1) yields 7
 
 #' @rdname Theoretical
 #' @examples
 #' mod_InvV(QPSKdB, QPSKdB(c(6,7)))
+#'
 #' @export
 mod_InvV <- function( f, pv, offset=0.0)
    # vectorized version of mod_Inv. pv can be a vector of BERs.
    # The offset is an offset to the Q_ function (in dB), such that
-   # the guesses passed to fzero wi11 be Q_Inv( p) - offset.
+   # the guesses passed to fzero will be Q_Inv( p) - offset.
    apply( cbind( pv, Q_Inv( pv) - offset), 1,
           function( x) mod_Inv( f, x[ 1], x[ 2])$x)
