@@ -18,7 +18,7 @@ Description: Provides maximum likelihood estimates of the
     errors due to limitation in available measurement time. Package includes 
     theoretical performance functions for common modulation schemes (Proakis, 
     "Digital Communications" (1995, <ISBN:0-07-051726-6>)), polarization shifted 
-    QPSK (Aggrell & Karlson (2009, <DOI:10.1109/JLT.2009.2029064>)), and utility 
+    QPSK (Agrell & Karlsson (2009, <DOI:10.1109/JLT.2009.2029064>)), and utility 
     functions to work with the performance functions.
 License: MIT + file LICENSE
 Encoding: UTF-8
