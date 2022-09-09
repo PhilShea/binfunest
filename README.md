@@ -66,6 +66,8 @@ mle1 <- stats4::mle( llsb2, start=c( b2b=20, offset=0), nobs=length(s),
 stats4::coef( mle1)
 #>      b2b   offset 
 #> 14.96665  2.99366
+
+
 # Below is the new function
 est1 <-  mleB2B( data=df, Errors="Errors", N=N, f=QPSKdB.B2B,
                  fparms=list( x="SNR"), start=c(b2b=20, offset=0))
@@ -81,23 +83,7 @@ that all samples above 18 dB SNR returned zero, except the 21 dB point.
 The Estimated line is dashed so the 3 dB + Offset line, which it
 overlays, is visible.
 
-``` r
-plot( s, y=r/N, log='y', type='p', panel.first = grid(), ylim=c(1e-9,0.5),
-      main="Modulation Performance Curves", xlab="SNR in dB",
-      ylab="BER")
-#> Warning in xy.coords(x, y, xlabel, ylabel, log): 6 y values <= 0 omitted from
-#> logarithmic plot
-lines( s, QPSKdB( s))
-lines( s, QPSKdB.B2B( s, B1, O1), col='red')
-lines( s, QPSKdB.B2B( s, +Inf, O1), col='blue')
-lines( s, y=QPSKdB.B2B( s, est1coef[1],  est1coef[2]), col="green", lty=2)
-abline( h=QPSKdB.B2B( B1, +Inf, O1), col='black', lty=2)
-legend( "bottomleft",
-        legend=c( "Data",  "Theory", "3 dB Offset", "3 dB Offset + 15 dB B2B", 
-                  "Estimated", "B2B Limit"),
-        lty=c( NA, 1, 1, 1, 2, 2), col=c( 'black', 'black', 'blue', 'red',
-                                          'green'),
-        pch=c( 1, NA, NA, NA, NA, NA))
-```
+    #> Warning in xy.coords(x, y, xlabel, ylabel, log): 6 y values <= 0 omitted from
+    #> logarithmic plot
 
-<img src="man/figures/README-plotQab-1.png" alt="Note all samples above 19 dB SNR returned zero.  The Estimated line is dashed so the 3 dB + Offset line, which it overlays, is visible." width="100%" />
+<img src="man/figures/README-plotQab-1.png" width="100%" />

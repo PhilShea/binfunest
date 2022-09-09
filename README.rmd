@@ -59,6 +59,8 @@ llsb2 <- function( b2b, offset)
 mle1 <- stats4::mle( llsb2, start=c( b2b=20, offset=0), nobs=length(s),
                    method="Nelder-Mead")
 stats4::coef( mle1)
+
+
 # Below is the new function
 est1 <-  mleB2B( data=df, Errors="Errors", N=N, f=QPSKdB.B2B,
                  fparms=list( x="SNR"), start=c(b2b=20, offset=0))
@@ -68,7 +70,7 @@ est1 <-  mleB2B( data=df, Errors="Errors", N=N, f=QPSKdB.B2B,
 
 The plot below compares the theoretical curve to the curve with the chosen B2B and offset, and the curve with the estimated parameters. Note that all samples above 18 dB SNR returned zero, except the 21 dB point.  The Estimated line is dashed so the 3 dB + Offset line, which it overlays, is visible.
 
-```{r plotQab, fig.cap="Note all samples above 19 dB SNR returned zero.  The Estimated line is dashed so the 3 dB + Offset line, which it overlays, is visible."}
+```{r plotQab, echo=FALSE}
 plot( s, y=r/N, log='y', type='p', panel.first = grid(), ylim=c(1e-9,0.5),
       main="Modulation Performance Curves", xlab="SNR in dB",
       ylab="BER")
