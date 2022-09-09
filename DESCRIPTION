@@ -1,7 +1,7 @@
 Package: binfunest
 Type: Package
 Title: Estimates Parameters of Functions Driving Binomial Random Variables
-Version: 0.1.0
+Version: 0.1.0.9000
 Authors@R:
     person(given = "Philip",
            family = "Shea",
@@ -9,17 +9,17 @@ Authors@R:
            email = "philshea@gmail.com",
            comment = c(ORCID = "0000-0001-5460-9987"))
 Maintainer: Philip Shea <philshea@gmail.com>
-Description: Provides maximum likelihood estimates of the 
-    performance parameters that drive a binomial distribution of observed 
-    errors, and takes full advantage of zero error observations. High performance 
-    communications systems typically have inherent noise sources and other 
-    performance limitations that need to be estimated. Measurements made at 
-    high signal to noise ratios typically result in zero 
-    errors due to limitation in available measurement time. Package includes 
-    theoretical performance functions for common modulation schemes (Proakis, 
-    "Digital Communications" (1995, <ISBN:0-07-051726-6>)), polarization shifted 
-    QPSK (Agrell & Karlsson (2009, <DOI:10.1109/JLT.2009.2029064>)), and utility 
-    functions to work with the performance functions.
+Description: Provides maximum likelihood estimates of the performance parameters
+    that drive a binomial distribution of observed errors, and takes full
+    advantage of zero error observations. High performance communications
+    systems typically have inherent noise sources and other performance
+    limitations that need to be estimated. Measurements made at high signal to
+    noise ratios typically result in zero errors due to limitation in available
+    measurement time. Package includes theoretical performance functions for
+    common modulation schemes (Proakis, "Digital Communications" (1995, 
+    <ISBN:0-07-051726-6>)), including polarization shifted QPSK (Agrell &
+    Karlsson (2009, <DOI:10.1109/JLT.2009.2029064>)), and utility functions to
+    work with the performance functions.
 License: MIT + file LICENSE
 Encoding: UTF-8
 LazyData: true

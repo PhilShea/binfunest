@@ -1,7 +1,7 @@
 README.rmd
 ================
 Phil Shea
-2022-09-07
+2022-09-09
 
 # `binfunest`
 
@@ -42,16 +42,18 @@ that the generated samples include zeros, and that the first of these
 parameter estimate.
 
 ``` r
-library(B2BQ, stats4)
+require( binfunest)
+require( stats4)
+#> Loading required package: stats4
 QPSKdB.B2B <- B2BConvert( QPSKdB)
 O1 <- 3 # offset
-B1 <- 16 # B2BQ
-s <- 0:20 # SNR Range 
+B1 <- 15 # B2BQ
+s <- 0:25 # SNR Range 
 N <- 1000000 # Number of samples
 (r <- rbinom( length( s), N, QPSKdB.B2B( s, B1, O1)))
-#>  [1] 161545 134508 108138  83957  62196  43660  28417  17258   9804   4857
-#> [11]   2322    973    389    130     40     11      1      3      1      0
-#> [21]      0
+#>  [1] 161958 135306 109002  85035  63269  44868  29705  18587  10921   5923
+#> [11]   2749   1382    593    234     88     34     12      4      3      0
+#> [21]      0      1      0      0      0      0
 df <- data.frame( Errors=r, SNR=s, N=N) # place data in data frame
 
 ## This shows how you could do the work by hand
@@ -60,32 +62,40 @@ llsb2 <- function( b2b, offset)
 mle1 <- stats4::mle( llsb2, start=c( b2b=20, offset=0), nobs=length(s),
                    method="Nelder-Mead")
 stats4::coef( mle1)
-#>       b2b    offset 
-#> 16.070988  3.009852
+#>      b2b   offset 
+#> 14.96665  2.99366
 # Below is the new function
 est1 <-  mleB2B( data=df, Errors="Errors", N=N, f=QPSKdB.B2B,
                  fparms=list( x="SNR"), start=c(b2b=20, offset=0))
 
 (est1coef <- stats4::coef( est1))
-#>       b2b    offset 
-#> 16.070988  3.009852
+#>      b2b   offset 
+#> 14.96665  2.99366
 ```
 
 The plot below compares the theoretical curve to the curve with the
-chosen B2B and offset, and the curve with the estimated parameters.
+chosen B2B and offset, and the curve with the estimated parameters. Note
+that all samples above 18 dB SNR returned zero, except the 21 dB point.
+The Estimated line is dashed so the 3 dB + Offset line, which it
+overlays, is visible.
 
 ``` r
-plot( s, y=r/N, log='y', type='p', panel.first = grid())
-#> Warning in xy.coords(x, y, xlabel, ylabel, log): 2 y values <= 0 omitted from
+plot( s, y=r/N, log='y', type='p', panel.first = grid(), ylim=c(1e-9,0.5),
+      main="Modulation Performance Curves", xlab="SNR in dB",
+      ylab="BER")
+#> Warning in xy.coords(x, y, xlabel, ylabel, log): 6 y values <= 0 omitted from
 #> logarithmic plot
 lines( s, QPSKdB( s))
 lines( s, QPSKdB.B2B( s, B1, O1), col='red')
-lines( s, y=QPSKdB.B2B( s, est1coef[1],  est1coef[2]), col="green")
+lines( s, QPSKdB.B2B( s, +Inf, O1), col='blue')
+lines( s, y=QPSKdB.B2B( s, est1coef[1],  est1coef[2]), col="green", lty=2)
+abline( h=QPSKdB.B2B( B1, +Inf, O1), col='black', lty=2)
 legend( "bottomleft",
-        legend=c( "Data",  "Theory", "3 dB Offset + 16 dB B2B", 
-                  "Estimated"),
-        lty=c( NA, 1, 1, 1), col=c( 'black', 'black', 'red', 'green'),
-        pch=c( 1, NA, NA, NA))
+        legend=c( "Data",  "Theory", "3 dB Offset", "3 dB Offset + 15 dB B2B", 
+                  "Estimated", "B2B Limit"),
+        lty=c( NA, 1, 1, 1, 2, 2), col=c( 'black', 'black', 'blue', 'red',
+                                          'green'),
+        pch=c( 1, NA, NA, NA, NA, NA))
 ```
 
-<img src="man/figures/README-plotQab-1.png" width="100%" />
+<img src="man/figures/README-plotQab-1.png" alt="Note all samples above 19 dB SNR returned zero.  The Estimated line is dashed so the 3 dB + Offset line, which it overlays, is visible." width="100%" />

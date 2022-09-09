@@ -74,7 +74,7 @@ plot( s, y=QPSKdB( s), typ="l", log="y", ylim=c( 1e-10, 0.5),
       ylab="BER")
 lines( s, y=QPSKdB.B2B( s, Inf, O1), col="blue", lwd=2)
 lines( s, y=QPSKdB.B2B( s, B1, O1), col='red')
-lines( s, y=QPSKdB.B2B( rep( B1, length( s)), Inf, O1), col='black', lty=2)
+abline( h=QPSKdB.B2B( B1, +Inf, O1), col='black', lty=2)
 legend( "bottomleft", legend=c( "Theory", "Offset", "Offset + B2B", "B2B"),
         lty=c( 1, 1, 1, 2), lwd=c(1, 2, 1, 1), 
         col=c( 'black', 'blue', 'red', 'black'))
