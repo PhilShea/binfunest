@@ -83,7 +83,4 @@ that all samples above 18 dB SNR returned zero, except the 21 dB point.
 The Estimated line is dashed so the 3 dB + Offset line, which it
 overlays, is visible.
 
-    #> Warning in xy.coords(x, y, xlabel, ylabel, log): 6 y values <= 0 omitted from
-    #> logarithmic plot
-
 <img src="man/figures/README-plotQab-1.png" width="100%" />
