@@ -1,5 +1,5 @@
 ---
-title: "README.rmd"
+title: "binfunest Release"
 author: "Phil Shea"
 date: "`r Sys.Date()`"
 output: github_document
@@ -20,7 +20,7 @@ knitr::opts_chunk$set(
 )
 ```
 
-# `binfunest`
+# `Introduction`
 
 <!-- badges: start -->
 [![R-CMD-check](https://github.com/PhilShea/binfunest/actions/workflows/R-CMD-check.yaml/badge.svg)](https://github.com/PhilShea/binfunest/actions/workflows/R-CMD-check.yaml)
@@ -31,7 +31,7 @@ The goal of `binfunest` is to simplify the estimation of offsets and Back-to-Bac
 
 ## Installation
 
-You can install the development version of `binfunest` from [GitHub](https://github.com/) with:
+`binfunest` is available on CRAN, so `install.packages( "binfunest")` will install it, and `library( binfunest)` will make it available. You can install the development version of `binfunest` from [GitHub](https://github.com/) with:
 
 ``` r
 # install.packages("devtools")

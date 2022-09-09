@@ -1,9 +1,9 @@
-README.rmd
+binfunest Release
 ================
 Phil Shea
 2022-09-09
 
-# `binfunest`
+# `Introduction`
 
 <!-- badges: start -->
 
@@ -20,7 +20,9 @@ binomial probabilities.
 
 ## Installation
 
-You can install the development version of `binfunest` from
+`binfunest` is available on CRAN, so `install.packages( "binfunest")`
+will install it, and `library( binfunest)` will make it available. You
+can install the development version of `binfunest` from
 [GitHub](https://github.com/) with:
 
 ``` r
