@@ -6,7 +6,7 @@
 #'
 #' @param f A function of a single argument `f( s)`.
 #'
-#' @return A function of three arguments `f( s, B2B, offset)`..
+#' @return A function of three arguments `f( s, B2B, offset)`.
 #' @export
 #'
 #' @examples
