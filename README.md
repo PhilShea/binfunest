@@ -10,6 +10,8 @@ Phil Shea
 [![R-CMD-check](https://github.com/PhilShea/binfunest/actions/workflows/R-CMD-check.yaml/badge.svg)](https://github.com/PhilShea/binfunest/actions/workflows/R-CMD-check.yaml)
 [![Codecov test
 coverage](https://codecov.io/gh/PhilShea/binfunest/branch/main/graph/badge.svg)](https://app.codecov.io/gh/PhilShea/binfunest?branch=main)
+[![CRAN
+status](https://www.r-pkg.org/badges/version/binfunest)](https://CRAN.R-project.org/package=binfunest)
 <!-- badges: end -->
 
 The goal of `binfunest` is to simplify the estimation of offsets and
