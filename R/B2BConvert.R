@@ -4,7 +4,8 @@
 #'
 #' Note that all quantities are assumed to be in Decibels.
 #'
-#' @param f A function of a single argument `f( s)`.
+#' @param f A function of a single argument `f( s)`. `f` can be a symbol, a
+#'     string, or an expression.
 #'
 #' @return A function of three arguments `f( s, B2B, offset)`.
 #' @export
@@ -13,10 +14,11 @@
 #' QPSKdB.B2B <- B2BConvert( QPSKdB)
 #'
 B2BConvert <- function( f) {
-   force(f)
-   function( x, B2B = Inf, offset = 0) {
+   fs <- substitute(f) # Try to retain original function name
+   if( is.character( fs)) fs <- match.fun( fs)
+   removeSource( eval( bquote( function( x, B2B = Inf, offset = 0) {
       b <- undB( -B2B)
       s <- undB( -x)
-      do.call( f, list(-dB((s + b)) - offset))
-   }
+      .(fs)( -dB((s + b)) - offset)
+   })))
 }
