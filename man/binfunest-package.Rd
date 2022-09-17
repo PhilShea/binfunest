@@ -7,7 +7,7 @@
 \title{Package \code{B2BQ} will estimate an offset and B2B "Q" of a communications
 system performance.}
 \description{
-Provides maximum likelihood estimates of the performance parameters that drive a binomial distribution of observed errors, and takes full advantage of zero error observations. High performance communications systems typically have inherent noise sources and other performance limitations that need to be estimated. Measurements made at high signal to noise ratios typically result in zero errors due to limitation in available measurement time. Package includes theoretical performance functions for common modulation schemes (Proakis, "Digital Communications" (1995, <ISBN:0-07-051726-6>)), polarization shifted QPSK (Agrell & Karlsson (2009, \doi{10.1109/JLT.2009.2029064})), and utility functions to work with the performance functions.
+Provides maximum likelihood estimates of the performance parameters that drive a binomial distribution of observed errors, and takes full advantage of zero error observations. High performance communications systems typically have inherent noise sources and other performance limitations that need to be estimated. Measurements made at high signal to noise ratios typically result in zero errors due to limitation in available measurement time. Package includes theoretical performance functions for common modulation schemes (Proakis, "Digital Communications" (1995, <ISBN:0-07-051726-6>)), including polarization shifted QPSK (Agrell & Karlsson (2009, \doi{10.1109/JLT.2009.2029064})), and utility functions to work with the performance functions.
 }
 \seealso{
 Useful links:

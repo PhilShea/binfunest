@@ -7,10 +7,17 @@
 B2BConvert(f)
 }
 \arguments{
-\item{f}{A function of a single argument \code{f( s)}.}
+\item{f}{A function of a single argument \code{f( s)}. \code{f} can be a symbol, a
+string, or an anonymous function.  If a symbol, the symbol name will
+be remembered.  If a string, it will be passed to \code{match.fun} which
+will return the function form that is the value of the named symbol
+(i.e., not the symbol the string named).}
 }
 \value{
-A function of three arguments \code{f( s, B2B, offset)}..
+A function of three arguments \code{function( x, B2B, offset){...}}
+where \code{x} is the symbol SNR, \code{B2B} is the back-to-back SNR (i.e. the
+equivalent SNR when the input SNR (\code{x}) is infinite), and \code{offset} is
+the offset to the function \code{f} (i.e., if \code{B2B} where infinite).
 }
 \description{
 Creates a function \code{f( -dB( undB( -s) + undB( -B2B)) - offset)}

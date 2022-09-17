@@ -6,3 +6,21 @@ test_that("B2BConvert works", {
    s <- undB( -sdB) + undB( -b2b)
   expect_equal( QPSKdB( -dB( s) - off), f( sdB, b2b, off))
 })
+
+test_that("B2BConvert works when passed a string", {
+   f <- B2BConvert( "QPSKdB")
+   b2b <- 15
+   off <- 3
+   sdB <- 1:15
+   s <- undB( -sdB) + undB( -b2b)
+   expect_equal( QPSKdB( -dB( s) - off), f( sdB, b2b, off))
+})
+
+test_that("B2BConvert works when passed an anonymous function", {
+   f <- B2BConvert( function(x) exp( -undB(x)))
+   b2b <- 15
+   off <- 3
+   sdB <- 1:15
+   s <- undB( -sdB) + undB( -b2b)
+   expect_equal( exp( -undB(-dB( s) - off)), f( sdB, b2b, off))
+})
