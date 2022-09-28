@@ -20,6 +20,7 @@
 #' QPSKdB.B2B <- B2BConvert( QPSKdB)
 #'
 B2BConvert <- function( f) {
+   force( f)
    fs <- substitute(f) # Try to retain original function name
    if( is.character( fs)) fs <- match.fun( fs)
    # bquote returns a call, and call's remember their source,
