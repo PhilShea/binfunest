@@ -244,17 +244,16 @@ logLik( mle3)
 vcov( mle3)
 plot(profile( mle3), absVal = FALSE)
 confint( mle3)
-
 ```
-
 # Using the `binfunest::mleB2B`
 
 The same result can be reached easier with this package's `mleB2B` function, which facilitates the data being hosted in a data frame or list:
 
 ```{r mleB2B}
 df <- data.frame( Errors=r, SNR=s)
-(est1 <- mleB2B( data=df, Errors="Errors", N=N, f=QPSKdB.B2B, 
-                 fparms=list( x="SNR"), start=c(b2b=20, offset=0)))
+est1 <- mleB2B( data=df, Errors="Errors", N=N, f=QPSKdB.B2B, 
+                 fparms=list( x="SNR"), start=c(b2b=20, offset=0))
+summary( est1)
 ```
 
 ## Very High B2B Q
