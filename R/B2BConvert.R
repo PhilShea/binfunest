@@ -21,16 +21,13 @@
 #'
 B2BConvert <- function( f) {
    force( f)
-   fs <- substitute(f) # Try to retain original function name
+   fs <- substitute( f) # Try to retain original function name
    if( is.character( fs)) fs <- match.fun( fs)
    # bquote returns a call, and call's remember their source,
    # that is, the source *before* bquote is applied.
    # eval will return a function, but it will attach the call's
    # source.  removeSource clears this, and the source can be
    # recovered from the tokenized code.
-   removeSource( eval( bquote( function( x, B2B = Inf, offset = 0) {
-      b <- undB( -B2B)
-      s <- undB( -x)
-      .(fs)( -dB((s + b)) - offset)
-   })))
+   removeSource( eval( bquote( function( x, B2B = Inf, offset = 0)
+      .(fs)( -dB((undB( -x) + undB( -B2B))) - offset))))
 }

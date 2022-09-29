@@ -1,7 +1,7 @@
 binfunest Release
 ================
 Phil Shea
-2022-09-09
+2022-09-29
 
 # `Introduction`
 
@@ -15,10 +15,10 @@ status](https://www.r-pkg.org/badges/version/binfunest)](https://CRAN.R-project.
 <!-- badges: end -->
 
 The goal of `binfunest` is to simplify the estimation of offsets and
-Back-to-Back “Q” for communications systems. The package also provides
-theoretical performance equations for many common modulation schemes,
-and eases maximum likelihood estimation of any function generating
-binomial probabilities.
+Back-to-Back “Q” for communications systems given measurements of bit
+errors vs. SNR. The package also provides theoretical performance
+equations for many common modulation schemes, and eases maximum
+likelihood estimation of any function generating binomial probabilities.
 
 ## Installation
 

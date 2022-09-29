@@ -423,7 +423,7 @@ We can get the coefficients from the following expression:
 
 # Real Data
 
-We have some simulations of various constellations and their bit maps used with perfect detectors (i.e., the constellation points were generated, noise was added, and then the points were detected; there was no actual modulation/demodulation).  The `BERDFc` data included with the package has a count of symbols and bits per symbol, so we need to make this data vector.
+We have some simulations of various constellations and their bit maps used with perfect detectors (i.e., the constellation points were generated, noise was added, and then the points were detected; there was no actual modulation/demodulation).  The `BERDFc` data included with the package has a count of symbols and bits per symbol, so we need to make this data vector.  The code below examines an 8-ary constellation which does not have a perfect gray code (i.e., there are adjacent symbols with more than one bit difference). This causes some bit errors to come in pairs, and breaks the binomial assumption.
 
 ```{r}
 Q8Sbits <- BERDFc[BERDFc$Name=="8QAM Star",] # Select one constellation

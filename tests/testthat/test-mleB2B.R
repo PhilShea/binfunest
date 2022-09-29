@@ -33,6 +33,7 @@ test_that("mleB2B main function works", {
                     fparms=list( x="SNR"), start=c(b2b=20, offset=0))
    expect_equal( coef( mle1),  coef( est3))
 
+   # test use of anonymous function.
    est4 <- mleB2B( data=df, Errors="Errors", N="N",
                    f=function(x, b2b = 20, offset = 0)
                       QPSKdB(-dB(( undB(-s) + undB( -b2b))) - offset),
