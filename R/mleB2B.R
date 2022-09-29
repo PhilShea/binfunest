@@ -79,7 +79,7 @@
 #'                  fparms=list( x="SNR"), start=c(b2b=20, offset=0))
 #'
 mleB2B <- function( data=NULL, Errors, N, f, fparms, start,
-                    method="Nelder-Mead", ...) { #, lower, upper, control, ...) {
+                    method="Nelder-Mead", ...) {
    cll <- match.call( expand.dots=FALSE)
    if (!is.null( data)) { # a data frame has been supplied.
       dnames <- names( data)
@@ -97,19 +97,21 @@ mleB2B <- function( data=NULL, Errors, N, f, fparms, start,
    # start has the names of variables of f to optimize.
    opt_names <- lapply( names( start), as.name)
    # create the call to f
-   fun.txt <- c( quote( f), fparms, opt_names)
+   fun.txt <- c( f, fparms, opt_names)
+
    fun <- as.call( fun.txt)
    le <- length( Errors)
    if (length( N) == 1) N <- rep( N, le) # normalize N to length of Errors
-   ll <- function() -sum( stats::dbinom( Errors, N, eval(fun), log=TRUE))
+   ll <- eval( bquote( function()
+      -sum( stats::dbinom( Errors, N, .(fun), log=TRUE))))
    formals( ll) <- start # must use alist to make this work.
    # constructing the call to mle.
-   sublst <- list( minuslogl=ll, start=start, nobs=le, method=method)
+   sublst <- list( minuslogl=removeSource( ll), start=start, nobs=le,
+                   method=method)
    if (!is.null( cll$...)) sublst <- append( sublst, cll$...)
-   #if ( !missing( lower) || !missing( upper))
-   #   sublst <- append( sublst, alist(lower=lower, upper=upper))
-   #if ( !missing( control)) sublst <- append( sublst, alist(control=control))
+
+   #fun1 <- quote( stats4::mle) #get( "mle", asNamespace( "stats4"))
+   #do.call( fun1, sublst)
    # This idiom will allow the call to be retained my mle.
-   call <- as.call( c( quote( stats4::mle), sublst))
-   eval( call)
+   eval( as.call( c( quote( stats4::mle), sublst)), envir=parent.frame())
 }
