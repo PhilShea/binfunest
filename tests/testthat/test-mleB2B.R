@@ -1,7 +1,5 @@
-require( stats4)
-
-
 test_that("mleB2B main function works", {
+   require("stats4", quietly = TRUE)
    # Set up test data.
    QPSKdB.B2B <- B2BConvert( QPSKdB)
    O1 <- 3
@@ -63,6 +61,7 @@ test_that( "mleB2B fails when it should", {
 })
 
 test_that( "mleB2B method, control, and '...' work", {
+   require("stats4", quietly = TRUE)
    # Set up test data different from above.
    QPSKdB.B2B <- B2BConvert( QPSKdB)
    O2 <- 3

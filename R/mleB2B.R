@@ -106,7 +106,7 @@ mleB2B <- function( data=NULL, Errors, N, f, fparms, start,
       -sum( stats::dbinom( Errors, N, .(fun), log=TRUE))))
    formals( ll) <- start # must use alist to make this work.
    # constructing the call to mle.
-   sublst <- list( minuslogl=removeSource( ll), start=start, nobs=le,
+   sublst <- list( minuslogl=utils::removeSource( ll), start=start, nobs=le,
                    method=method)
    if (!is.null( cll$...)) sublst <- append( sublst, cll$...)
 

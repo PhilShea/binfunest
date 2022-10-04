@@ -28,6 +28,6 @@ B2BConvert <- function( f) {
    # eval will return a function, but it will attach the call's
    # source.  removeSource clears this, and the source can be
    # recovered from the tokenized code.
-   removeSource( eval( bquote( function( x, B2B = Inf, offset = 0)
+   utils::removeSource( eval( bquote( function( x, B2B = Inf, offset = 0)
       .(fs)( -dB((undB( -x) + undB( -B2B))) - offset))))
 }

@@ -1,18 +1,24 @@
 #' Theoretical error rate functions
 #'
 #' Functions to calculate the theoretical performance of common modulation
-#' formats.  Includes the functions `dB (x)` (returns `10log10(x)`), `undB(x)`
+#' formats.  Includes the functions `dB(x)` (returns `10*log10(x)`), `undB(x)`
 #' (reverses `dB(x)`), `Q_( x)` (Markum's Q function), and `Q_Inv(x)`
 #' (returns the
 #' SNR in Decibels to get probability x).  Also includes `mod_Inv`, which returns
 #' the SNR required for a the function `f` to reach the supplied BER (bit
 #' error rate, or bit error probability).
 #'
+#' The `marcumq` function is copied from the `gsignal` package, which copied it
+#' from the help file of the `lmomco` package, but is clear from Proakis
+#' equations 2-1-121 and 2-1-124.
+#'
 #' The rest of the functions return the probability of a bit error given the
 #' SNR in Decibels.
-#' *  `QPSKdB` is Quadrature Phase shift keyed: two bits per symbol.
-#' *  `DQPSK` is differentially detected differentially coded QPSK.
-#' *  `DQPSKDDdB` is differentially detected differential QPSK (coherently
+#' *  `QPSKdB` is Quadrature Phase shift keyed: two bits per symbol. Note that
+#'             BPSK and QPSK have the same performance when SNR is $E_b/N_0$.
+#' *  `DBPSKdB` is differentially detected differential binary PSK.
+#' *  `DQPSKdB` is differentially detected differentially coded QPSK.
+#' *  `DQPSKDDdB` is differentially decoded differential QPSK (coherently
 #'      detected but differentially decoded. See `DQPSK` above.
 #' *  `PSQPSKdB` is polarization-shifted QPSK: it is dual pole, but only
 #'      one pole is active at any one time, thus supplying three bits per
@@ -39,6 +45,7 @@
 #' @param pv a vector of BERs.
 #' @param guess a guess for the `perr` (the default usually works).
 #' @param offset an offset in Decibels for guesses in `mod_InvV`.
+#' @param a,b,m `marcumq` input arguments: non-negative real numbers.
 #'
 #' @name Theoretical
 NULL
@@ -87,12 +94,32 @@ Q_ <- function( x) stats::pnorm( x, lower.tail=FALSE)
 Q_Inv <- function( perr) 2.0 * dB( -stats::qnorm( perr))
 
 #' @rdname Theoretical
+#'
+#' @references \url{https://cran.r-project.org/package=lmomco}
+#' @references \url{https://cran.r-project.org/package=gsignal}
+#' @export
+marcumq <- function( a, b, m=1) {
+   stopifnot( a >= 0, b >= 0, m >= 0)
+   stats::pchisq(b^2, df = 2 * m, ncp = a^2, lower.tail = FALSE)
+}
+
+#' @rdname Theoretical
 #' @export
 QPSKdB <- function( x) Q_( sqrt_2 * undB( 0.5 * x))
 
 #' @rdname Theoretical
 #' @export
-DQPSKdB <- function( x) 0.5 * exp( -undB( x))
+DBPSKdB <- function( x) 0.5 * exp( -undB( x))
+
+#' @rdname Theoretical
+#' @export
+DQPSKdB <- function( x) {
+   tgam <- 2 * undB( x)
+   oos2 <- sqrt( 0.5)
+   a <- sqrt( tgam * (1 - oos2))
+   b <- sqrt( tgam * (1 + oos2))
+   marcumq( a, b) - 0.5 * besselI( a * b, 0) * exp( -0.5 * (a^2 + b^2))
+}
 
 # Differentially decoded DQPSK.
 #' @rdname Theoretical

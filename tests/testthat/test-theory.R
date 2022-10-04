@@ -18,12 +18,25 @@ test_that( "Q_ is invertable", {
    expect_equal( Q_Inv( Q_( undB( 10.0/2))), 10.0)
 })
 
+test_that( "marcumq works",{
+   # all of these values are from the Mathematica MarcumQ help page.
+   expect_equal( marcumq( 0.4, 0.6, 1), 0.8468707)
+   expect_equal( marcumq( 3.4, 4.1, 5), 0.694828488) # had to use N[*,9]
+   expect_equal( marcumq( 1.4, 2.6, 2.6), 0.46052904)
+})
+
+test_that( "marcumq fails when it should",{
+   expect_error( marcumq( -0.4, 0.6, 1))
+   expect_error( marcumq( 0.4, -0.6, 1))
+   expect_error( marcumq( 0.4, 0.6, -1))
+})
+
 test_that( "QPSKdB works", {
    expect_equal( QPSKdB( 10.0), 3.872108216e-06)
 })
 
 test_that( "DQPSKdB works)", {
-   expect_equal( DQPSKdB( 10), 0.000022699965)
+   expect_equal( DQPSKdB( 10), 0.0003431846)
 })
 
 test_that( "DQPSKDDdB works", {

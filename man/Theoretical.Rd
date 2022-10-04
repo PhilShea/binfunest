@@ -7,7 +7,9 @@
 \alias{undB}
 \alias{Q_}
 \alias{Q_Inv}
+\alias{marcumq}
 \alias{QPSKdB}
+\alias{DBPSKdB}
 \alias{DQPSKdB}
 \alias{DQPSKDDdB}
 \alias{PSQPSKdB}
@@ -30,7 +32,11 @@ Q_(x)
 
 Q_Inv(perr)
 
+marcumq(a, b, m = 1)
+
 QPSKdB(x)
+
+DBPSKdB(x)
 
 DQPSKdB(x)
 
@@ -58,6 +64,8 @@ mod_InvV(f, pv, offset = 0)
 \item{tol}{the tolerance to test x with.}
 
 \item{perr}{a probability of a bit error.}
+
+\item{a, b, m}{\code{marcumq} input arguments: non-negative real numbers.}
 
 \item{M}{The integer number of symbols > 4.}
 
@@ -89,7 +97,7 @@ The returned list has elements
 }
 \description{
 Functions to calculate the theoretical performance of common modulation
-formats.  Includes the functions \code{dB (x)} (returns \verb{10log10(x)}), \code{undB(x)}
+formats.  Includes the functions \code{dB(x)} (returns \code{10*log10(x)}), \code{undB(x)}
 (reverses \code{dB(x)}), \code{Q_( x)} (Markum's Q function), and \code{Q_Inv(x)}
 (returns the
 SNR in Decibels to get probability x).  Also includes \code{mod_Inv}, which returns
@@ -97,12 +105,18 @@ the SNR required for a the function \code{f} to reach the supplied BER (bit
 error rate, or bit error probability).
 }
 \details{
+The \code{marcumq} function is copied from the \code{gsignal} package, which copied it
+from the help file of the \code{lmomco} package, but is clear from Proakis
+equations 2-1-121 and 2-1-124.
+
 The rest of the functions return the probability of a bit error given the
 SNR in Decibels.
 \itemize{
-\item \code{QPSKdB} is Quadrature Phase shift keyed: two bits per symbol.
-\item \code{DQPSK} is differentially detected differentially coded QPSK.
-\item \code{DQPSKDDdB} is differentially detected differential QPSK (coherently
+\item \code{QPSKdB} is Quadrature Phase shift keyed: two bits per symbol. Note that
+BPSK and QPSK have the same performance when SNR is $E_b/N_0$.
+\item \code{DBPSKdB} is differentially detected differential binary PSK.
+\item \code{DQPSKdB} is differentially detected differentially coded QPSK.
+\item \code{DQPSKDDdB} is differentially decoded differential QPSK (coherently
 detected but differentially decoded. See \code{DQPSK} above.
 \item \code{PSQPSKdB} is polarization-shifted QPSK: it is dual pole, but only
 one pole is active at any one time, thus supplying three bits per
@@ -133,6 +147,11 @@ mod_Inv( QPSKdB, QPSKdB( 7)) # yields 7
 
 mod_InvV(QPSKdB, QPSKdB(c(6,7)))
 
+}
+\references{
+\url{https://cran.r-project.org/package=lmomco}
+
+\url{https://cran.r-project.org/package=gsignal}
 }
 \seealso{
 \code{\link[pracma:fzero]{pracma::fzero()}}
