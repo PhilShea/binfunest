@@ -1,0 +1,57 @@
+---
+title: "BER_Functions"
+output: rmarkdown::html_vignette
+vignette: >
+  %\VignetteIndexEntry{BER_Functions}
+  %\VignetteEngine{knitr::rmarkdown}
+  %\VignetteEncoding{UTF-8}
+---
+
+```{r, include = FALSE}
+knitr::opts_chunk$set(
+  collapse = TRUE,
+  comment = "#>"
+)
+
+log10Tck <- function(side, type){
+   lim <- switch(side, 
+     x = par('usr')[1:2],
+     y = par('usr')[3:4],
+     stop("side argument must be 'x' or 'y'"))
+   at <- floor(lim[1]) : ceiling(lim[2])
+   return(switch(type, 
+     minor = outer(1:9, 10^(min(at):max(at))),
+     major = 10^at,
+     stop("type argument must be 'major' or 'minor'")
+   ))
+}
+```
+
+```{r setup}
+library( binfunest)
+#set.seed( 31394)
+```
+
+The `binfunest` package includes a number of common bit error rate functions.  The function take a Signal to Noise ratio (SNR) expressed as the energy in a single bit ($E_b/N_0$) in Decibels and return the probability of error.  Most of the functions were taken from Proakis.
+
+```{r figure, fig.height=8, fig.width=5}
+plot( QPSKdB, 0, 20, log="y", ylim=c( 1e-6, 0.5), axes=F, 
+      main="Modulation Performance Curves", xlab="SNR in dB",
+      ylab="BER")
+axis(2, at=log10Tck('y','major'), tck=1, lty=3) # left
+axis(4, at=log10Tck('y','major'), tcl= 0.2, labels=NA) # right
+axis(2, at=log10Tck('y','minor'), tcl= 0.1, labels=NA) # left
+axis(4, at=log10Tck('y','minor'), tcl= 0.1, labels=NA) # right
+axis(1, at=seq( from=0, to=20, by=2), tck=1, lty=3) # normal x axis
+#axis(3) # normal x axis on top side of plot
+box()
+curve( DBPSKdB, 0, 20, col="cyan", add=TRUE)
+curve( DQPSKdB, 0, 20, col="magenta", add=TRUE)
+curve( QAMdB.8.star, 0, 20, col="blue", add=TRUE)
+curve( PSQPSKdB, 0, 20, col="red", add=TRUE)
+curve( QAMdB.16, 0, 20, col="green", add=TRUE)
+legend( "bottomleft", legend=c( "QPSKdB", "DBPSK", "DQPSKdB", "QAMdB.8.star", "PSQPSKdB",
+                                "QAMdB.16"),
+        lty=c( 1, 1, 1, 1, 1, 1),
+        col=c("black", "cyan", "magenta", "blue", "red", "green"))
+```
