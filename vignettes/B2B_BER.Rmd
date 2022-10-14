@@ -11,15 +11,30 @@ vignette: >
 bibliography: references.bib
 ---
 
-```{r, include = FALSE}
+```{r setup, include = FALSE}
 knitr::opts_chunk$set(
   collapse = TRUE,
   comment = "#>",
   fig.dim = c(6, 4)
 )
+
+library(knitr)
+
+inline_hook <- function (x) {
+  if (is.numeric(x)) {
+    # ifelse does a vectorized comparison
+    # If integer, print without decimal; otherwise print two places
+    res <- ifelse(x == round(x) && x < .Machine$integer.max,
+      sprintf("%d", x),
+      sprintf("%.2G", x)) # end ifelse
+    paste(res, collapse = ", ") # else if(is.numeric...
+  }
+}
+
+knit_hooks$set(inline = inline_hook)
 ```
 
-```{r setup}
+```{r }
 library( binfunest)
 set.seed( 31394)
 ```
@@ -161,7 +176,7 @@ lines( s, y=QPSKdB.B2B( s, c['b'], c['o']), col='green')
 
 # Maximum Likelihood Estimation
 
-In order to use all of the data, and to derive statistical significance from the estimates, we must turn to maximum likelihood estimate.  This will model the parameters which based on the *most likely* parameters based on the observed data (including the zeros).
+In order to use all of the data, and to derive statistical significance from the estimates, we must turn to maximum likelihood estimation.  This will model the parameters which based on those that *most likely* created the observed data (including the zeros).
 
 ### Log Likelihood of observations
 
@@ -171,7 +186,7 @@ The likelihood is the probability of that the specific observation  took place. 
 dbinom( r, N, QPSKdB.B2B( s, B1, O1), log=TRUE)
 ```
 
-It is easy to see that the high-SNR observations (the last ones: the SNR ranges from zero to 20; the samples are numbered one to 21) have the highest likelihood.  This is because when the SNR is high, zero errors is about the only likely event, while at a lower SNR, anything the the range of $N p \pm 2\sqrt{N p}$ is pretty likely (where $N$ is the number of samples, and $p$ is the probability of an error; still assuming $p << 1$ here), so each individual result when $ N p > 0$ has a small likelihood.
+It is easy to see that the high-SNR observations (the last ones: the SNR ranges from zero to 20; the samples are numbered one to 21) have the highest likelihood.  This is because when the SNR is high, zero errors is about the only likely event, while at a lower SNR, anything the the range of $N p \pm 2\sqrt{N p}$ is pretty likely (where $N$ is the number of samples, and $p$ is the probability of an error; still assuming $p << 1$ here), so each individual result when $N p > 0$ has a small likelihood.
 
 ## Using `optim`
 
@@ -188,7 +203,7 @@ mle1$par
 (mle1s <- sqrt( diag( solve( mle1$hessian))))
 ```
 
-Those are pretty close estimates. The diagonal of the inverse of the Hessian matrix is an estimate of the variance of the parameters, so their square root is the standard deviation. The expression below will show how many standard deviations from the answers those estimates are.
+Those are pretty close estimates (although not as close as the prior fits). The diagonal of the inverse of the Hessian matrix is an estimate of the variance of the parameters, so their square root is the standard deviation. The expression below will show how many standard deviations from the answers those estimates are.
 
 ```{r}
 c( (mle1$par["b2b"] - B1)/mle1s["b2b"], (mle1$par["off"] - O1)/mle1s["off"])
@@ -258,7 +273,7 @@ summary( est1)
 
 ## Very High B2B Q
 
-It is common for many simulated systems or lower data rate systems to reach almost theoretical performance, with an offset, but no, or almost no, detectable B2B. That is, the system can be run back-to-back indefinitely and no errors. In this case, estimating a B2B might corrupt a simple offset estimate. The following has no visible B2B Q.  
+It is common for many simulated systems or lower data-rate systems to reach almost theoretical performance, with an offset, but no, or almost no, detectable B2B. That is, the system can be run back-to-back indefinitely and no errors. In this case, estimating a B2B might corrupt a simple offset estimate. The following has no visible B2B Q.  
 
 ```{r vhB2B, fig.cap="24 dB B2B Q and 3 dB Offset estimates."}
 O2 <- 3
@@ -282,7 +297,7 @@ legend( "bottomleft",
         pch=c( 1, NA, NA, NA, NA))
 ```
 
-So the plot shows the data running down the Offset line, but it is quite unconvincing that the B2B estimate is correct. Typically the B2B parameter will have a very large variance in these instances (this does not), and multiple runs will demonstrate this.  Ignoring our guilty knowledge of how the data was generated, we might want to test the hypothesis that the B2B Q is really infinite (this is not an impossibility).  WE can estimate the offset only using the `fixed` option of `mle` or simply setting the B2B parameter.  Note that when optimizing over a single variable, a few other changes are required.  
+So the plot shows the data running down the Offset line, but it is quite unconvincing that the B2B estimate is correct. Typically the B2B parameter will have a very large variance in these instances (this does not), and multiple runs will demonstrate this.  Ignoring our guilty knowledge of how the data was generated, we might want to test the hypothesis that the B2B Q is really infinite (this is not an impossibility).  We can estimate the offset only using the `fixed` option of `mle` or simply setting the B2B parameter.  Note that when optimizing over a single variable, a few other changes are required.  
 
 ```{r mle5}
 (mle5 <- mleB2B( Errors=r2, N=N, f=QPSKdB.B2B, method="Brent", 
@@ -294,11 +309,11 @@ So the plot shows the data running down the Offset line, but it is quite unconvi
 AIC(mle4, mle5)
 ```
 
-The substantially lower AIC for `mle4` indicates that `mle5` is *not* a statistically better estimate.  Again ignoring our guilty knowledge that the B2B Q is really 24 dB, we might now generate some more data.  A 100 Gbps system that we are willing to test for an hour will generate `r 100e9*3600` bits, and thus could be used to test a system with a B2B Q of no more than about 24 dB (resulting in a BER of `r QPSKdB.B2B( 19, B2, O2)`, and a an expected value of `r 100e9*3600*QPSKdB.B2B( 19, 24, 3)` errors).
+The substantially lower AIC for `mle4` indicates that `mle5` is *not* a statistically better estimate.  Again ignoring our guilty knowledge that the B2B Q is really 24 dB, we might now generate some more data.  A 100 Gbps system that we are willing to test for an hour will generate `r 100e9*3600` bits, and thus could be used to test a system with a B2B Q of no more than about 24 dB (resulting in a BER of `r QPSKdB.B2B( 19, B2, O2)`, and an expected value of `r 100e9*3600*QPSKdB.B2B( 19, 24, 3)` errors).
 
 ### Adding Observations
 
-The follow will simulate an additional run at 19 dB, and add that data to the current observations.  We need to make a vector of the number of trials now as they are not all the same.
+The follow will simulate an additional run at 19 dB, and add that data to the current observations.  We need to make a vector of the number of trials now as they are not all the same. The plot below has an extende range.
 
 ```{r mle6, fig.cap="24 dB B2B Q and 3 dB Offset estimates with additional data point."}
 N2 <- 100e9*3600
@@ -309,7 +324,7 @@ mle6 <- mleB2B(  Errors=r4, N=Nvec, f=QPSKdB.B2B,
                  fparms=list( x=s2), start=c(b2b=20, offset=0))
 summary( mle6)
 mle6coef <- coef(mle6)
-plot(  s2, r4/Nvec, log='y', panel.first = grid(), ylim=c(1e-14, 0.5))
+plot(  s2, r4/Nvec, log='y', panel.first = grid(), ylim=c(1e-15, 0.5))
 lines( s2, y=QPSKdB( s2), col='black')
 lines( s2, y=QPSKdB.B2B( s2, Inf, O1), col="blue", lwd=2)
 lines( s2, y=QPSKdB.B2B( s2, B2, O2), col="red")
@@ -317,7 +332,7 @@ lines( s2, y=QPSKdB.B2B( s2, mle6coef[1],  mle6coef[2]), col="green")
 legend( "bottomleft",
         legend=c( "Data", "Theory", "Offset", "Offset + B2B",  
                   "Estimated"),
-        lty=c( NA, 1, 1, 1), lwd=c(NA, 1, 2, 1, 1), 
+        lty=c( NA, 1, 1, 1, 1), lwd=c(NA, 1, 2, 1, 1), 
         col=c( 'black', 'black', 'blue', 'red', 'green'),
         pch=c( 1, NA, NA, NA, NA))
 ```
@@ -337,119 +352,3 @@ summary(mle8)
 AIC(mle7,mle8)
 exp( (AIC( mle7) - AIC( mle6)) / 2)
 ```
-
-
-# Generic Simplified Log Likelihood
-
-While the above function worked, if you don't have substantial samples of the tail, the offset and B2B can get confused. Also, the form requires an infinite estimate for B2B if the system is performing more-or-less theoretically. We need a method that is numerically better behaved in more conditions. We can cast the BER in terms of the $Q$ function: $Q( s) = (1/2)\mathrm{Erfc}(s/\sqrt{2})$ where $\mathrm{Erfc( x)}$ is the complementary error function [^1]. Using this we can create a generic BER function as:
-
-[^1]: see Abramowitz and Stegun 29.2.29
-
-$$
-BER( \gamma, a, b) = Q\left( \sqrt{ \frac{a \gamma} {1 + b \gamma}} \right)
-$$
-
-where $a$ and $b$ are the linear versions of the offset and B2B and $\gamma$ is the linear SNR. We also note that R does not have the $\mathrm{Erfc}$, however, the following is true: `Erfc( x) = 2 * pnorm( x * sqrt( 2), lower=FALSE)`, and the package includes the function `Q_(x)`. With this formulation, we have the following conversions:
-
-$$
-\begin{aligned}
-Off_{dB} &= -dB( a) \\
-
-B2B_{dB} &= -dB( b) \\
-s_{dB} &= dB( \gamma)
-\end{aligned}
-$$
-
-work with the `Q_` function. In order to allow the parameters to be negative without getting a negative square root, the parameters are squared in the objective function. Since our data was created with $b = 0$ (i.e., the B2B Q is infinite) we want the gradient search to allow negative $a$ and $b$ without failing.
-
-$$
-BER_2( \gamma, \alpha, \beta) = Q\left( \sqrt{ \frac{\alpha^2 \gamma} {1 + \beta^2 \gamma}} \right)
-$$
-
-The `mleB2B` function will estimate $\alpha$ and $\beta$, but we will want $a = \alpha^2$ and $b = \beta^2$.
-
-```{r Qab}
-Q_ab <- function( s, a, b) Q_( sqrt( a^2 * s/(1 + b^2 * s)))
-mle8 <- mleB2B( N=N, Errors=r2, f=Q_ab, start=c( a=1, b=0), fparms=list(s=undB(s)))
-summary( mle8)
-```
-
-The value of `b` with a comparatively large standard error is an indication that it really ought to be zero.  Note that as its value is equivalent to `r -2*dB( abs(coef(mle8)["b"]))` dB B2BQ, .
-
-```{r plotQab}
-mle8coef <- coef( mle8)
-plot( s, y=r2/N, log='y', type='p', panel.first = grid())
-lines( s, QPSKdB( s))
-lines( s, Q_(sqrt( undB( s)/(1 + undB( -80) * s))), col='red')
-lines( s, y=Q_ab( undB( s), mle8coef[1],  mle8coef[2]), col="green")
-legend( "bottomleft",
-        legend=c( "Data",  "Theory", "0 dB Offset + 80 dB B2B", 
-                  "Estimated"),
-        lty=c( NA, 1, 1, 1), col=c( 'black', 'black', 'red', 'green'),
-        pch=c( 1, NA, NA, NA))
-```
-
-That generated very nice estimates. Note that the standard deviation of $b^2$ is about half of $b^2$, so it is reasonable to let $b = 0$.
-
-Now let's try it with a detectable B2B.
-
-```{r}
-O4 <- 3
-B4 <- 15
-(r4 <- rbinom( length( s), N, QPSKdB.B2B( s, B4, O4)))
-mle9 <- mleB2B( N=N, Errors=r4, f=Q_ab, start=c( a=1, b=0), 
-                fparms=list(s=undB(s)))
-summary( mle9)
-mle9coef <- coef( mle9)
-(mle9sd <- sqrt( diag( vcov( mle9))))
-plot( s, r4/N, log='y',panel.first = grid())
-lines( s, QPSKdB( s))
-lines( s, y=QPSKdB.B2B( s, Inf, O4), col="blue")
-lines( s, y=QPSKdB.B2B( s, B4, O4), col="red")
-lines( s, y=Q_ab( undB( s), mle9coef[1],  mle9coef[2]), col="green", lty=5)
-legend( "bottomleft",
-        legend=c( "Data", "Theory", "Theory + 3 dB", "3 dB Offset + 20 dB B2B",
-                  "Estimated"),
-        lty=c( NA, 1, 1, 1, 5), 
-        col=c( 'black', 'black', 'blue', 'red', 'green'),
-        pch=c( 1, NA, NA, NA, NA))
-```
-
-We can get the coefficients from the following expression:
-
-```{r}
--2*dB(mle9coef)
-```
-
-# Real Data
-
-We have some simulations of various constellations and their bit maps used with perfect detectors (i.e., the constellation points were generated, noise was added, and then the points were detected; there was no actual modulation/demodulation).  The `BERDFc` data included with the package has a count of symbols and bits per symbol, so we need to make this a data vector.  The code below examines an 8-ary constellation which does not have a perfect gray code (i.e., there are adjacent symbols with more than one bit difference). This causes some bit errors to come in pairs, and breaks the binomial assumption.
-
-```{r}
-Q8Sbits <- BERDFc[BERDFc$Name=="8QAM Star",] # Select one constellation
-Q8Sbits$Nbits <- Q8Sbits$Bps * Q8Sbits$N # Add  a Nbits column
-QAMdB.8.star.B2B <- B2BConvert( QAMdB.8.star) 
-mle10 <- mleB2B( data=Q8Sbits, N="Nbits", Errors="BER", 
-                 f=QAMdB.8.star.B2B , start=c( B2B=30, offset=0), 
-                 fparms=list( x="SNR"))
-summary( mle10)
-```
-
-This looks like the B2B may be finite, and this can be verified by such a fit.
-
-```{r}
-mle11 <- mleB2B( data=Q8Sbits, N="Nbits", Errors="BER", 
-                 f=QAMdB.8.star.B2B , method="Brent", 
-                 fparms=list( x="SNR", B2B=+Inf), start=c( offset=0), 
-                 lower=-6, upper=10)
-summary( mle11)
-AIC( mle10, mle11)
-```
-
-That result indicates that the B2B is actually needed.  We can see what is happening here by looking at the data.  
-
-```{r}
-Q8Sbits
-```
-
-The 14 dB SNR observation has only one symbol error, but reports two bit errors.  This is because the 8QAM Star constellation has a few adjacent symbols that have two bit changes, and that one error doubles the estimated error rate.  Therefore, this estimator indicates that the BER is not binomial distributed.
