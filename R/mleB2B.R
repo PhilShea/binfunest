@@ -103,7 +103,7 @@ mleB2B <- function( data=NULL, Errors, N, f, fparms, start,
    le <- length( Errors)
    if (length( N) == 1) N <- rep( N, le) # normalize N to length of Errors
    ll <- eval( bquote( function()
-      -sum( stats::dbinom( Errors, N, .(fun), log=TRUE))))
+      -sum( sort(stats::dbinom( Errors, N, .(fun), log=TRUE)))))
    formals( ll) <- start # must use alist to make this work.
    # constructing the call to mle.
    sublst <- list( minuslogl=utils::removeSource( ll), start=start, nobs=le,
