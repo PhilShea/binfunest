@@ -21,14 +21,14 @@ knitr::opts_chunk$set(
 library(knitr)
 
 inline_hook <- function (x) {
-  if (is.numeric(x)) {
-    # ifelse does a vectorized comparison
-    # If integer, print without decimal; otherwise print two places
-    res <- ifelse(x == round(x) && x < .Machine$integer.max,
-      sprintf("%d", x),
+  if (is.numeric(x)) { # ifelse does a vectorized comparison
+    # If integer, print with commas; otherwise print two places
+    res <- ifelse( is.integer( x) || 
+                     ((x == round(x)) && (x < .Machine$integer.max)),
+      noquote( prettyNum( x, big.mark=",")),
       sprintf("%.2G", x)) # end ifelse
-    paste(res, collapse = ", ") # else if(is.numeric...
-  }
+    paste(res, collapse = ", ")
+  } else paste( x)
 }
 
 knit_hooks$set(inline = inline_hook)
@@ -41,7 +41,7 @@ set.seed( 31394)
 
 # Bit Error Rate Functions
 
-The package include a number of functions that report the theoretical bit error rate (BER) of many common modulation formats, with the signal-to-noise ratio (SNR) specified as the energy in a single bit divided by the noise power in a one Hertz bandwidth ($E_b/N_0$).  See `help("Theoretical") for a complete list.
+The package include a number of functions that report the theoretical bit error rate (BER) of many common modulation formats [@Proakis1995], with the signal-to-noise ratio (SNR) specified as the energy in a single bit divided by the noise power in a one Hertz bandwidth ($E_b/N_0$). See \`help("Theoretical") for a complete list.
 
 ```{r}
 plot( QPSKdB, 3, 20, log="y", ylim=c( 1e-10, 0.5), panel.first = grid(),
@@ -56,14 +56,13 @@ legend( "bottomleft", legend=c( "QPSKdB", "QAMdB.8.star", "PSQPSKdB",
         col=c("black", "blue", "red", "green"))
 ```
 
-
 # Offset and a Back-to-Back SNR
 
 In high performance communications systems it is common for both the transmitter (Tx) and receiver (Rx) to add noise to the signal. Unless you have a perfect example of one or the other, it is impossible to measure the source: both the Tx and Rx will contribute. This has the effect of having a minimum bit error rate (BER) even when no noise is added to the signal, called the Back-to-Back (B2B) BER, and is often expressed in Decibels as the signal-to-noise ratio (SNR) which would the B2B BER in a perfect Rx.
 
 The other common effect is to add an offset to the SNR. That is, the system may always perform as though the SNR were a few Decibels less.
 
-We can take a BER function in Decibels and add the offset and B2B BER to it as follows. The linear SNR is $\gamma = E_b/N_0$, but in the B2B case the input noise $N$ is zero, yet there is still a finite error rate observed. This is modeled as $\gamma = E_b/{(N_0+\beta)}$ where $\beta$ is $1/B2B$.
+We can take a BER function and add the offset and B2B BER to it as follows. The linear SNR is $\gamma = E_b/N_0$, but in the B2B case the input noise $N_0$ is zero, yet a finite error rate is still observed. This is modeled as $\gamma = E_b/{(N_0+\beta)}$ where $\beta$ is $1/B2B$.
 
 $$ P_{B2B}(\gamma) = P\left[ O\left( \frac{1}{1/\gamma + 1/B}\right)\right]$$
 
@@ -100,7 +99,7 @@ legend( "bottomleft", legend=c( "Theory", "Offset", "Offset + B2B", "B2B"),
 Let's generate some example data and use `nls` to fit the curve to the data.
 
 ```{r data, fig.cap="Samples above 17 dB resulted in zero errors (in this example) and so are not plotted."}
-N <- 1000000
+N <- 1000000L
 (r <- rbinom( length( s), N, QPSKdB.B2B( s, B1, O1)))
 bplot1 <- function( s, r, N, O, B, ylim=c( 1e-10, 0.5)) {
   plot( s, y=QPSKdB.B2B( s, B, O), col='red', log='y', type='l', ylim=ylim,
@@ -130,7 +129,7 @@ c <- coef( nls.fit1)
 lines( s, y=QPSKdB.B2B( s, c['b'], c['o']), col='green')
 ```
 
-Those are remarkably close estimates.  However, we have fit the error rate to the function, not the error counts.  There are zeros in the data, and this doesn't match the function at high SNRs very well.  The following will perform the fit without the zero points.
+Those are remarkably close estimates. However, we have fit the function to the error rate, not the error counts. There are zeros in the data, and this doesn't match the function at high SNRs very well. The following will perform the fit without the zero points.
 
 ```{r, fig.cap="Non-linear fit (green line) excluding the zeros."}
 nls.fit2 <- nls( Errors/Trials ~  QPSKdB.B2B( SNR, b, o), 
@@ -141,7 +140,7 @@ c <- coef( nls.fit2)
 lines( s, y=QPSKdB.B2B( s, c['b'], c['o']), col='green')
 ```
 
-That was unsatisfying; the answer is almost identical to the version including the zeros.  Plotting the data on a linear scale indicates why.
+That was unsatisfying; the answer is almost identical to the version including the zeros. Plotting the data on a linear scale indicates why.
 
 ```{r, fig.cap="Linear plot of performance showing how close to zero the estimates lie."}
  plot( s, y=QPSKdB.B2B( s, B1, O1), col='red', type='l', panel.first = grid(),
@@ -157,16 +156,16 @@ That was unsatisfying; the answer is almost identical to the version including t
 
 ```
 
-The error rate is so close to zero past 10 dB that a least squares error minimization is not affected by any fit errors.  A better technique might be to fit the "Q" function of both sides of the equation.  The Q function is Markum's Q function and is given by 
+The error rate is so close to zero past 10 dB that a least squares error minimization is not affected by any fit errors. A better technique might be to fit the inverse "Q" function of both sides of the equation. The Q function is Markum's Q function and is given by
 
 $$
 Q(s) = \frac{1}{2} \mathrm{Erfc} \left( s / \sqrt{2}\right)
 $$
 
-In R, this is simply `pnorm( x, lower.tail=FALSE)`, although the package provides the function `Q_(x)` for convenience. Since the Q function of zero is infinite, we have to exclude zero results again.
+In R, this is simply `pnorm( x, lower.tail=FALSE)`, although the package provides the function `Q_(x)` for convenience. The inverse "Q" function returns the argument of `Q_(x)` which results in the supplied error rate, conventionally returning the number in Decibels (thus the idea of back-to-back Q in Decibels). This package provides the function defined as `Q_Inv(x) = 2 * dB( -qnorm( x))`. Since `Q_Inv` of zero is infinite, we have to exclude zero results again.
 
 ```{r, fig.cap="Results of non-linear fit (green line) to Q function.  Zeros are still filtered out."}
-nls.fit3 <- nls( Q_( Errors/Trials) ~  Q_( QPSKdB.B2B( SNR, b, o)), 
+nls.fit3 <- nls( Q_Inv( Errors/Trials) ~  Q_Inv( QPSKdB.B2B( SNR, b, o)), 
                  data=subset( df1, Errors > 0), start=list( b=10, o=0))
 summary( nls.fit3)
 bplot1(s, r, N, O1, B1)
@@ -176,23 +175,21 @@ lines( s, y=QPSKdB.B2B( s, c['b'], c['o']), col='green')
 
 # Maximum Likelihood Estimation
 
-In order to use all of the data, and to derive statistical significance from the estimates, we must turn to maximum likelihood estimation.  This will model the parameters which based on those that *most likely* created the observed data (including the zeros).
+In order to use all of the data, and to derive statistical significance from the estimates, we must turn to maximum likelihood estimation. This will model the parameters that *most likely* created the observed data (including the zeros).
 
 ### Log Likelihood of observations
 
-The likelihood is the probability of that the specific observation  took place.  The `dbinom` function returns exactly this:
+The likelihood is the probability that the specific observation took place. This is the product of the probability of each observation, and we will maximize the sum of log of the probabilities. The `dbinom` function returns exactly this:
 
 ```{r}
 dbinom( r, N, QPSKdB.B2B( s, B1, O1), log=TRUE)
 ```
 
-It is easy to see that the high-SNR observations (the last ones: the SNR ranges from zero to 20; the samples are numbered one to 21) have the highest likelihood.  This is because when the SNR is high, zero errors is about the only likely event, while at a lower SNR, anything the the range of $N p \pm 2\sqrt{N p}$ is pretty likely (where $N$ is the number of samples, and $p$ is the probability of an error; still assuming $p << 1$ here), so each individual result when $N p > 0$ has a small likelihood.
+It is easy to see that the high-SNR observations (the last ones: the SNR ranges from zero to 20 with the samples numbered 1 to 21) have the highest likelihood. This is because when the SNR is high, zero errors is about the only likely event, while at a lower SNR, anything the the range of $N p \pm 2\sqrt{N p}$ is pretty likely (where $N$ is the number of samples `r N`, and $p$ is the probability of an error; still assuming $p \ll 1$ here), so each individual result has a small likelihood. For example, at an SNR of 1 dB (2nd item) the BER is `r QPSKdB.B2B( 1, B1, O1)` and the expected value is `r round( N * QPSKdB.B2B( 1, B1, O1))`. While this is the *peak* likelihood, the probability is spread around plus or minus about `r round( 2 * sqrt( N * QPSKdB.B2B( 1, B1, O1)))` values.
 
 ## Using `optim`
 
-If we have data consisting of bit errors generated by testing $N$ bits at a variety of SNRs we can use `optim` to find maximum likelihood estimates of the offset and B2B. 
-
-We have to cast the parameters as a vector to work with `optim`. The function `llsb` below creates the log-likelihood of the observations. `optim` will naturally find minimums, so the negative of the sum is used.  Sorting the log likelihood before the sum will ensure that precision isn't lost, although such loss of precision is "unlikely." 
+We can use `optim` to find maximum likelihood estimates of the offset and B2B. We have to cast the parameters as a vector and create a function `llsb` to return the log-likelihood of the observations. `optim` will naturally find minimums, so the negative of the sum is used. Sorting the log likelihood before the sum will ensure that precision isn't lost, although such loss of precision is "unlikely."
 
 ```{r llsb}
 llsb <- function( par) 
@@ -203,11 +200,7 @@ mle1$par
 (mle1s <- sqrt( diag( solve( mle1$hessian))))
 ```
 
-Those are pretty close estimates (although not as close as the prior fits). The diagonal of the inverse of the Hessian matrix is an estimate of the variance of the parameters, so their square root is the standard deviation. The expression below will show how many standard deviations from the answers those estimates are.
-
-```{r}
-c( (mle1$par["b2b"] - B1)/mle1s["b2b"], (mle1$par["off"] - O1)/mle1s["off"])
-```
+Those are pretty close estimates (although not as close as the prior fits). The diagonal of the inverse of the Hessian matrix is an estimate of the variance of the parameters, so their square root is the standard deviation.
 
 Below is a simple function that will take a function created by `B2BConvert` and estimate the two parameters. (A few extra parameters are added for possible later use.)
 
@@ -228,7 +221,7 @@ sqrt( diag( solve( mle2$hessian)))
 
 The output is in `$par`, the first being the B2B SNR, and the second being the offset. Note the names come from the `startpar` vector.
 
-Here is a plot with the original data and the estimated line. Note the estimated line lies on top of the the "Offset + 15 dB B2B".
+Here is a plot with the original data and the estimated line. Note the estimated line lies right on top of the the "Offset + 15 dB B2B".
 
 ```{r, fig.cap="Estimated as green dashed line (dashing allows the red line to peek through)."}
 bplot1(s, r, N, O1, B1)
@@ -262,29 +255,52 @@ plot(profile( mle3), absVal = FALSE)
 confint( mle3)
 ```
 
-The covariance indicates that there is a relationship between the two parameters.  The [correlation matrix]( https://en.wikipedia.org/wiki/Covariance_matrix#Relation_to_the_correlation_matrix) can be computed as follows (we make a function as we'll find it useful):
+The covariance indicates that there is a relationship between the two parameters, although it is hard to determine how strong. We'll look into this further below.
 
-```{r}
-cor.mle <- function( m) {
-  c <- vcov( m)
-  v<- diag(1 / sqrt( diag( c)))
-  v %*% c %*% v
-}
-cor.mle( mle3)
-```
+## Using `mleB2B`
 
-A correlation of `r cor.mle( mle3)[1,1]` is rather large. The same result can be reached easier with this package's `mleB2B` function, which facilitates the data being hosted in a data frame or list:
+The same result can be reached easier with this package's `mleB2B` function, which facilitates the data being hosted in a data frame or list as well as vectors (the dataframe form is shown here):
 
 ```{r mleB2B}
 df <- data.frame( Errors=r, SNR=s)
 est1 <- mleB2B( data=df, Errors="Errors", N=N, f=QPSKdB.B2B, 
-                 fparms=list( x="SNR"), start=c(b2b=20, offset=0))
+                fparms=list( x="SNR"), start=c(b2b=20, offset=0))
 summary( est1)
+```
+
+## Correlation between B2B and Offset
+
+The [correlation matrix](https://en.wikipedia.org/wiki/Covariance_matrix#Relation_to_the_correlation_matrix) can be computed as follows:
+
+```{r}
+c <- vcov( est1)
+v <- diag(1 / sqrt( diag( c)))
+v %*% c %*% v
+rm( c, v)
+```
+
+The package provides a function, as we'll find it useful.
+
+```{r}
+cor.mle( est1)
+```
+
+A correlation of `r cor.mle( mle3)[1,1]` is rather large. This means that the two random variables of the estimated B2B and offset are not independent. This can be demonstrated:
+
+```{r, fig.cap="100 Samples of parameter estimates."}
+L <- 100
+tmp <- function(K){
+  r <- rbinom( length( s), N, QPSKdB.B2B( s, B1, O1))
+  coef( mleB2B( Errors=r, N=N, f=QPSKdB.B2B, 
+                fparms=list( x=s), start=c(b2b=20, offset=0)))
+}
+samps <- vapply(1:L, tmp, FUN.VALUE=c("B2B"=0, "Offset"=0)) 
+plot( t(samps))
 ```
 
 ## Very High B2B Q
 
-It is common for many simulated systems or lower data-rate systems to reach almost theoretical performance, with an offset, but no, or almost no, detectable B2B. That is, the system can be run back-to-back indefinitely and no errors. In this case, estimating a B2B might corrupt a simple offset estimate. The following has no visible B2B Q.  
+It is common for many simulated systems or lower data-rate systems to reach almost theoretical performance, perhaps with an offset, but no, or almost no, detectable B2B. That is, the system can be run back-to-back indefinitely and generate no errors. In this case, estimating a B2B might corrupt a simple offset estimate. The following has no visible B2B Q.
 
 ```{r vhB2B, fig.cap="24 dB B2B Q and 3 dB Offset estimates."}
 O2 <- 3
@@ -308,7 +324,7 @@ legend( "bottomleft",
         pch=c( 1, NA, NA, NA, NA))
 ```
 
-So the plot shows the data running down the Offset line, but it is quite unconvincing that the B2B estimate is correct. Typically the B2B parameter will have a very large variance in these instances (this does not), and multiple runs will demonstrate this.  Also, the correlation between the two parameters is now `r cor.mle( mle4)[1,2]`.  Ignoring our guilty knowledge of how the data was generated, we might want to test the hypothesis that the B2B Q is really infinite (this is a possibility).  We can estimate the offset only using the `fixed` option of `mle` or simply setting the B2B parameter.  Note that when optimizing over a single variable, a few other changes are required.  
+The plot shows the data running down the Offset line, but it is quite unconvincing that the B2B estimate is correct. Typically the B2B parameter will have a very large variance in these instances (this does not), and multiple runs will demonstrate this. Also, the correlation between the two parameters is now `r cor.mle( mle4)[1,2]`. Ignoring our guilty knowledge of how the data was generated, we might want to test the hypothesis that the B2B Q is really infinite (this is a possibility). We can estimate the offset only using the `fixed` option of `mle` or simply setting the B2B parameter. Note that when optimizing over a single variable, a few other changes are required.
 
 ```{r mle5}
 (mle5 <- mleB2B( Errors=r2, N=N, f=QPSKdB.B2B, method="Brent", 
@@ -320,17 +336,17 @@ So the plot shows the data running down the Offset line, but it is quite unconvi
 AIC(mle4, mle5)
 ```
 
-The substantially lower AIC for `mle4` indicates that `mle5` is *not* a statistically better estimate.  Again ignoring our guilty knowledge that the B2B Q is really 24 dB, we might now generate some more data.  A 100 Gbps system that we are willing to test for an hour will generate `r 100e9*3600` bits, and thus could be used to test a system with a B2B Q of no more than about 24 dB (resulting in a BER of `r QPSKdB.B2B( 19, B2, O2)`, and an expected value of `r 100e9*3600*QPSKdB.B2B( 19, 24, 3)` errors).
+The substantially lower AIC for `mle4` indicates that `mle5` is *not* a statistically better estimate. Again ignoring our guilty knowledge that the B2B Q is really 24 dB, we might now generate some more data. A 100 Gbps system that we are willing to test for an hour will generate `r 100e9*3600` bits, and thus could be used to test a system (resulting in a BER of `r QPSKdB.B2B( 19, B2, O2)`, and an expected value of `r 100e9*3600*QPSKdB.B2B( 19, B2, O2)` errors).
 
 ### Adding Observations
 
-The following will simulate an additional run at 19 dB, and add that data to the current observations.  We need to make a vector of the number of trials now as they are not all the same. The plot below has an extended range.
+The following will simulate an additional run at 19 dB with many more samples, and add a single error a to the current observations. We need to make a vector of the number of trials now as they are not all the same. The plot below has an extended range.
 
 ```{r mle6, fig.cap="24 dB B2B Q and 3 dB Offset estimates with additional data point."}
 N2 <- 100e9*3600
 Nvec <- c( rep(N, length(s)), N2)
 s2 <- c(s, 19)
-(r4 <- c( r2, rbinom( 1, N2, QPSKdB.B2B( 19, B2, O2))))
+(r4 <- c( r2, 1))
 mle6 <- mleB2B(  Errors=r4, N=Nvec, f=QPSKdB.B2B,
                  fparms=list( x=s2), start=c(b2b=20, offset=0))
 summary( mle6)
@@ -348,7 +364,7 @@ legend( "bottomleft",
         pch=c( 1, NA, NA, NA, NA))
 ```
 
-Note that the B2B estimate increased a bit, and the std error decreased a bit.  The example below will show the same process with an infinite B2B, showing that when it truly is infinite, the AIC of an infinite model is lower.
+Note that the B2B estimate increased a bit, and the std error decreased a bit. The example below will show the same process with an infinite B2B, showing that when it truly is infinite, the AIC of an infinite model is lower.
 
 ```{r noB2B}
 (r3 <- rbinom( length( s), N, QPSKdB( s - O2)))
@@ -367,7 +383,7 @@ exp( (AIC( mle7) - AIC( mle6)) / 2)
 
 # Real Data
 
-We have some simulations of various constellations and their bit maps used with perfect detectors (i.e., the constellation points were generated, noise was added, and then the points were detected; there was no actual modulation/demodulation).  The `BERDFc` data included with the package has a count of symbols and bits per symbol, so we need to make this a data vector.  The code below examines an 8-ary constellation which does not have a perfect gray code (i.e., there are adjacent symbols with more than one bit difference). This causes some bit errors to come in pairs, and breaks the binomial assumption.
+We have some simulations of various constellations and their bit maps used with perfect detectors (i.e., the constellation points were generated, noise was added, and then the points were detected; there was no actual modulation/demodulation). The `BERDFc` data included with the package has a count of symbols and bits per symbol, so we need to make a data vector of the count of bits. The code below examines an 8-ary constellation which does not have a perfect gray code (i.e., there are adjacent symbols with more than one bit difference). This causes some bit errors to come in pairs, and breaks the binomial assumption.
 
 ```{r}
 Q8Sbits <- BERDFc[BERDFc$Name=="8QAM Star",] # Select one constellation
@@ -391,10 +407,10 @@ summary( mle11)
 AIC( mle10, mle11)
 ```
 
-That result indicates that the B2B is actually needed.  We can see what is happening here by looking at the data.  
+That result indicates that the B2B is actually needed. We can see what is happening here by looking at the data.
 
 ```{r}
 Q8Sbits
 ```
 
-The 14 dB SNR observation has only one symbol error, but reports two bit errors.  This is because the 8QAM Star constellation has a few adjacent symbols that have two bit changes, and that one symbol error doubles the estimated error rate.  Therefore, this estimator indicates that the BER is not binomialy distributed.
+The 14 dB SNR observation has only one symbol error, but reports two bit errors. This is because the 8QAM Star constellation has a few adjacent symbols that have two bit changes, and that one symbol error doubles the estimated error rate. Therefore, this estimator indicates that the BER is not binomialy distributed.

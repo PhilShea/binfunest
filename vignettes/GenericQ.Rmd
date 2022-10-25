@@ -1,0 +1,167 @@
+---
+title: "Generic Simplified Log Likelihood"
+output: 
+   rmarkdown::html_vignette:
+      fig_caption: yes
+      keep_md: true
+vignette: >
+   %\VignetteIndexEntry{Generic Simplified Log Likelihood}
+   %\VignetteEngine{knitr::rmarkdown}
+   %\VignetteEncoding{UTF-8}
+bibliography: references.bib
+---
+
+```{r setup, include = FALSE}
+knitr::opts_chunk$set(
+  collapse = TRUE,
+  comment = "#>",
+  fig.dim = c(6, 4)
+)
+
+library(knitr)
+
+local({
+  formatEng <- function( x, digits=4) {
+    # from https://stat.ethz.ch/pipermail/r-help/2006-July/108808.html
+    # Hans-Joerg Bibiko
+    # Max Planck Institute for Evolutionary Anthropology
+    # Department of Linguistics
+    # Deutscher Platz 6     phone:   +49 (0) 341 3550 341
+    # D-04103 Leipzig       fax:     +49 (0) 341 3550 333
+    # Germany               e-mail:  bibiko@eva.mpg.de
+    # modified by Phil Shea phil1shea@duck.go
+    s <- as.numeric(
+      strsplit( format( x, scientific=TRUE, digits=digits), "e")[[ 1]])
+    mant <- s[1] * 10^(s[2] %% 3)
+    expo <- as.integer( s[2] - (s[2] %% 3))
+    return( ifelse( expo==0, paste( mant), paste( mant, expo, sep="e")))
+  }
+  inline_hook <- function (x) {
+    if (is.numeric(x)) { # ifelse does a vectorized comparison
+      # If integer, print with commas; otherwise print two places
+      res <- ifelse( is.integer( x) || 
+                       ((x == round(x)) && (x < .Machine$integer.max)),
+                     noquote( prettyNum( x, big.mark=",")),
+                     formatEng( x))
+      paste(res, collapse = ", ")
+    } else paste( x)
+  }
+  knit_hooks$set(inline = inline_hook)
+})
+```
+
+```{r }
+library( binfunest)
+library( stats4) # need this in the search path to work with mle results.
+set.seed( 31394)
+```
+
+If you don't have substantial samples of the high-SNR tail of a bit error rate function, the offset and back-to-back (B2B) can get confused. Also, the form requires an infinite estimate for B2B if the system is performing more-or-less theoretically. Using functions in Decibels yields the following:
+
+```{r data}
+QPSKdB.B2B <- B2BConvert( QPSKdB)
+s <- 0:20
+O2 <- 3
+B2 <- Inf
+N <- 1000000
+(r2 <- rbinom( length( s), N, QPSKdB.B2B( s, B2, O2)))
+mle6 <- mleB2B( Errors=r2, N=N, f=QPSKdB.B2B, fparms=list( x=s), 
+                start=c(b2b=20, offset=0))
+summary( mle6)
+```
+
+This estimated a B2B of `r coef( mle6)["b2b"]` dB.We need a method that is numerically better behaved in more conditions. We can cast the BER in terms of the $Q$ function: $Q( s) = (1/2)\mathrm{Erfc}(s/\sqrt{2})$ where $\mathrm{Erfc( x)}$ is the complementary error function [^1]. Using this we can create a generic BER function as:
+
+$$
+BER( \gamma, a, b) = Q\left( \sqrt{ \frac{a \gamma} {1 + b \gamma}} \right)
+$$
+
+where $a$ and $b$ are the linear versions of the offset and B2B and $\gamma$ is the linear SNR. We also note that R does not have the $\mathrm{Erfc}$, however, the following is true: `Erfc( x) = 2 * pnorm( x * sqrt( 2), lower=FALSE)`, and the package includes the function `Q_(x)`. With this formulation, we have the following conversions:
+
+$$
+\begin{aligned}
+Off_{dB} &= -dB( a) \\
+
+B2B_{dB} &= -dB( b) \\
+s_{dB} &= dB( \gamma)
+\end{aligned}
+$$
+
+We can use this directly, but we have to limit $b$ to be greater than zero or `sqrt` might be passed a negative number. See documentation on `optim` for how this is done (.
+`mleB2B` parameters in the `...` are passed to `mle`, which are passed to `optim`).
+```{r}
+gamma <- undB( s)
+
+Q_ab <- function( gamma, a, b)
+  Q_( sqrt( a * gamma / (1 + b * gamma)))
+
+mle7 <- mleB2B( N=N, Errors=r2, f=Q_ab, start=c( a=1, b=0),
+                fparms=list(gamma=gamma), method="L-BFGS-B", lower=list(b=0))
+summary( mle7)
+```
+
+This doesn't always work though, so sometimes you might want to allow a negative $b$.  In order to allow the parameters to be negative without getting a negative square root, square the parameters in the objective function. Since our data was created with $b = 0$ (i.e., the B2B Q is infinite) we want the gradient search to allow negative $a$ and $b$ without failing.
+
+$$
+BER_2( \gamma, \alpha, \beta) = Q\left( \sqrt{ \frac{\alpha^2 \gamma} {1 + \beta^2 \gamma}} \right)
+$$
+
+We generate some observations of QPSK data with a 3 dB offset and an infinite B2B Q. Since QPSK follows the $Q$ function plus 3 dB, the fit should find `a` equal to one. The `mleB2B` function will estimate $\alpha$ and $\beta$, but we will want $a = \alpha^2$ and $b = \beta^2$.
+
+```{r Q_ab}
+gamma <- undB( s)
+Q_ab2 <- function( gamma, alpha, beta) 
+  Q_( sqrt( alpha^2 * gamma / (1 + beta^2 * gamma)))
+mle8 <- mleB2B( N=N, Errors=r2, f=Q_ab2, start=c( alpha=1, beta=0),
+                fparms=list(gamma=gamma))
+summary( mle8)
+```
+
+Note that the small `beta` value of `r coef(mle8)["beta"]` is equivalent to a `r -2*dB( abs(coef(mle8)["beta"]))` dB B2BQ.  Below is a plot of that result.
+
+```{r plotQab}
+mle8coef <- coef( mle8)
+plot( s, y=r2/N, log='y', type='p', panel.first = grid())
+lines( s, QPSKdB( s))
+lines( s, Q_(sqrt( gamma)), col='red')
+lines( s, y=Q_ab( gamma, mle8coef[1],  mle8coef[2]), col="green")
+legend( "bottomleft",
+        legend=c( "Data",  "QPSK Theory", "Q w/ 0 dB Offset", 
+                  "Estimated"),
+        lty=c( NA, 1, 1, 5), col=c( 'black', 'black', 'red', 'green'),
+        pch=c( 1, NA, NA, NA))
+```
+
+That generated very nice estimates. Note that the standard deviation of $b^2$ is greater than $b^2$, so it is reasonable to let $b = 0$.
+
+Now let's try it with a detectable B2B.
+
+```{r}
+O4 <- 3
+B4 <- 15
+(r4 <- rbinom( length( s), N, QPSKdB.B2B( s, B4, O4)))
+mle9 <- mleB2B( N=N, Errors=r4, f=Q_ab, start=c( alpha=1, beta=0), 
+                fparms=list(gamma=gamma))
+summary( mle9)
+mle9coef <- coef( mle9)
+(mle9sd <- sqrt( diag( vcov( mle9))))
+plot( s, r4/N, log='y',panel.first = grid())
+lines( s, QPSKdB( s))
+lines( s, y=QPSKdB.B2B( s, Inf, O4), col="blue")
+lines( s, y=QPSKdB.B2B( s, B4, O4), col="red")
+lines( s, y=Q_ab( gamma, mle9coef[1],  mle9coef[2]), col="green", lty=5)
+legend( "bottomleft",
+        legend=c( "Data", "Theory", "Theory + 3 dB", "3 dB Offset + 15 dB B2B",
+                  "Estimated"),
+        lty=c( NA, 1, 1, 1, 5), 
+        col=c( 'black', 'black', 'blue', 'red', 'green'),
+        pch=c( 1, NA, NA, NA, NA))
+```
+
+We can get the coefficients in Decibels from the following expression:
+
+```{r}
+-2*dB(mle9coef)
+```
+
+[^1]: see Abramowitz and Stegun 29.2.29
